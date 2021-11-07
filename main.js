@@ -20,15 +20,19 @@ let frame = 0; // <--- para crear a los enemigos periodicamente
 let gameOver = false;
 // Se mostrara en la funcion *-handleGameStatus*
 let score = 0;
+const winningScore = 10;
 //Para iterar sobre los proyectiles
 const projectiles = [];
+//Array de recursos para meterlos aqui, cuando se crean en animate
+const resources = [];
+
 
 
 
 //Mouse object
 const mouse = {
-    x: 5,
-    y: 5,
+    x: 10,
+    y: 10,
     width: 0.1,
     height: 0.1,
 
@@ -231,8 +235,8 @@ class Enemy {
     constructor(verticalPosition){ // <---- parametro se crea en la funcion *handleEnemies*
         this.x = $canvas.width;  // <---- para que el enemigo salga por detras del ancho del canvas
         this.y = verticalPosition; // <----- una variable global para que el defensor tambien pueda acceder a ella
-        this.width = cellSize;
-        this.height = cellSize;
+        this.width = cellSize - cellGap * 2;;
+        this.height = cellSize - cellGap * 2;;
         this.speed = Math.random() * 0.2 + 0.4; // <-- Max de velocidad 4.2 px
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 100;
@@ -270,8 +274,8 @@ function handleEnemies(){
             i--;  // <---- regresa el arreglo o lo ajusta para no saltar el siguiente objeto iterado
         }
     }
-    if (frame % enemiesInterval === 0) {  // <---- cada que el frame sea divisible por *enmiesInterval (600)*, un enemigo saldra
-        let verticalPosition = Math.floor(Math.random() * 5 + 1) * cellSize; // <---- verticalPosition sera un num random entre 100/200/300/400/500 coordenadas horizontales la celda
+    if (frame % enemiesInterval === 0 && score < winningScore) {  // <---- cada que el frame sea divisible por *enmiesInterval (600)*, un enemigo saldra
+        let verticalPosition = Math.floor(Math.random() * 5 + 1) * cellSize + cellGap; // <---- verticalPosition sera un num random entre 100/200/300/400/500 coordenadas horizontales la celda
         enemies.push(new Enemy(verticalPosition));
         enemyPosition.push(verticalPosition)   // <--- Array se va llenando por cada posicion nueva del enemigo que este ACTIVO
         if (enemiesInterval > 120) {
@@ -302,6 +306,22 @@ class Resources {
     }
 }
 
+function handleResources() {
+    if (frame % 100 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
+        resources.push(new Resources());
+    } 
+    for (let i = 0; i < resources.length; i++) {
+        resources[i].draw();
+        if (resources[i] && mouse.x && mouse.y && colision(resources[i], mouse)) {
+            numberOfResources += resources[i].amount;
+            resources.splice(i,1);
+            i --;
+        }
+        
+    }
+}
+
+
 
 //Utilities 
 // para llamar a la funcion *handleGameStatus* la ponemos en la funcion de animate
@@ -316,6 +336,13 @@ function handleGameStatus(){
     ctx.font = '60px Orbitron';
     ctx.fillText('GAME OVER:', 215, 330);
      }
+     if (score > winningScore && enemies.length === 0) {
+        ctx.fillStyle = 'black';
+        ctx.font = '60px Orbitron';
+        ctx.fillText('LEVEL COMPLETE', 130, 300);
+        ctx.font = '30px Orbitron';
+        ctx.fillText('You Win, score: ' + score + 'points', 134, 340);
+     }
 }
 
 function animate() {
@@ -324,7 +351,8 @@ function animate() {
     ctx.fillRect(0, 0, controlsBar.width, controlsBar.height);
     handleGameGrid();
     handleDefenders();
-    handleProjectiles()
+    handleResources();
+    handleProjectiles();
     handleEnemies();
     handleGameStatus();
     frame ++;
@@ -345,6 +373,6 @@ function colision(first, second) {
               first.y + first.height < second.y)    // <------- La altura de PRIMERA y es menor que la punta o inicio de SECOND y -(por arriba)-
               
        )  return true // <----- ! como hay negacion si estan chocando y regresa verdadero en la colision
-       
-    
-}
+};
+
+
