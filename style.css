@@ -1,0 +1,15 @@
+body {
+    background-color: black;
+}
+
+#canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform:translate(-50%, -50%);
+    width: 900px;
+    height: 600px;
+    background: white;
+    font-family: 'Orbitron', sans-serif;
+    /* Link para cambiar la fuente al CSS/HTML/JS - Orbitron */
+}
