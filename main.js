@@ -18,6 +18,8 @@ const enemyPosition = [];
 let enemiesInterval = 600; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
 let frame = 0; // <--- para crear a los enemigos periodicamente
 let gameOver = false;
+// Se mostrara en la funcion *-handleGameStatus*
+let score = 0;
 //Para iterar sobre los proyectiles
 const projectiles = [];
 
@@ -137,7 +139,6 @@ function handleProjectiles() {
             projectiles.splice(i,1);  // <----- se eleimina del arreglo cuando llega al ancho - 100 (solo se borra uno)
             i--;  // <---- regresa el arreglo o lo ajusta para no saltar el siguiente objeto iterado
         }
-        console.log('projectiles ' + projectiles.length)
     }
 }
 
@@ -166,10 +167,14 @@ class Defender {
         ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
     }
     update(){
-        this.timer ++; 
-        if (this.timer % 100 === 0) {        // valor de 👇  70 y 50 para que salga de en medio del cuadro
-            projectiles.push(new Projectile(this.x + 70, this.y + 50)); // <-- cada 100 frames una istancia (projectil) se crea y se va al Array
-        }
+        if (this.shooting) { // <-- si es true dispara
+            this.timer ++; 
+            if (this.timer % 100 === 0) {        // valor de 👇  70 y 50 para que salga de en medio del cuadro
+                projectiles.push(new Projectile(this.x + 70, this.y + 50)); // <-- cada 100 frames una istancia (projectil) se crea y se va al Array
+            }  
+    } else {
+       this.timer = 0; 
+    }
     }
     
 }
@@ -198,8 +203,15 @@ function handleDefenders() {
     for (let i = 0; i < defenders.length; i++) {
         defenders[i].draw();
         defenders[i].update(); //<--- for each defender creado en el array, llama la funcion update(projectiles)
+        // <- array que se va a revisar si aun tiene la misma coordenada defensor y enemigo en Y (no es -1 DISPARA)
+        // si la posision del enemigo no encuentra la misma coordenada que el defensor en Y me da -1 (SE DETIENEN LAS BALAS)
+        if (enemyPosition.indexOf(defenders[i].y) !== -1) {  
+            defenders[i].shooting = true;
+        } else {
+            defenders[i].shooting = false;
+        }
         for (let u = 0; u < enemies.length; u++) {  //<---- loop en el array de los enemigos que se van creando (instancias)
-            if (defenders[i] && colision(defenders[i], enemies[i])) {  // <---- condicion de la funcion de colision / revisa a cada defensor y enemigo si se tocan
+            if (defenders[i] && colision(defenders[i], enemies[u])) {  // <---- condicion de la funcion de colision / revisa a cada defensor y enemigo si se tocan
                 enemies[u].movement = 0;               // si se tocan enemigo iterado se deja de mover
                 defenders[i].health -= 0.2;            // si se tocan quitale vida al defensor
             }
@@ -246,16 +258,22 @@ function handleEnemies(){
         if (enemies[i].x < 0){  // <---- si algun enemigo llega a x = 0 de ancho perdio
             gameOver = true;
         }
-        if (enemies[i].health <= 0) {
-            let gainedResources = enemies[i].maxHealth; // <---- en la clase Enemy .maxHealth es 100 para guardarlo en esta variable
-            enemies[i].splice(i,1) // <----- se eleimina del arreglo cuando la vida llega a 0 (solo se borra uno)
+        if (enemies[i].health <= 0) {        // 👇 solo dara 10 de recursos al matar al enemigo
+            let gainedResources = enemies[i].maxHealth/10; // <---- en la clase Enemy .maxHealth es 100 para guardarlo en esta variable
+            numberOfResources += gainedResources;
+            score += gainedResources;
+            // en el loop de los enemigos si el enemigo muere, se activa la variable findThisIndex la cual sirve para
+            //encontrar al enemigo que murio y quitarlo del enemyPosition array
+            const findThisIndex = enemyPosition.indexOf(enemies[i].y) 
+            enemyPosition.splice(findThisIndex,1)
+            enemies.splice(i,1) // <----- se eleimina del arreglo cuando la vida llega a 0 (solo se borra uno)
             i--;  // <---- regresa el arreglo o lo ajusta para no saltar el siguiente objeto iterado
         }
     }
     if (frame % enemiesInterval === 0) {  // <---- cada que el frame sea divisible por *enmiesInterval (600)*, un enemigo saldra
         let verticalPosition = Math.floor(Math.random() * 5 + 1) * cellSize; // <---- verticalPosition sera un num random entre 100/200/300/400/500 coordenadas horizontales la celda
         enemies.push(new Enemy(verticalPosition));
-        enemyPosition.push(verticalPosition)   // <--- Array se va llenando por cada posicion nueva del enemigo
+        enemyPosition.push(verticalPosition)   // <--- Array se va llenando por cada posicion nueva del enemigo que este ACTIVO
         if (enemiesInterval > 120) {
             enemiesInterval -= 50; // <--- haremos que el intervalo disminuya en 50 (saldran mas y mas)  
         } 
@@ -270,7 +288,8 @@ function handleGameStatus(){
     ctx.fillStyle = 'gold';
     ctx.font = '30px Orbitron';
     // Variable numberOfResources 👇  que se modifica en *addEventListener del defensor
-    ctx.fillText('Resources: ' + numberOfResources, 20, 55);
+    ctx.fillText('Score: ' + score, 20, 40);
+    ctx.fillText('Resources: ' + numberOfResources, 20, 80);
      if (gameOver) {
     ctx.fillStyle = 'black';
     ctx.font = '60px Orbitron';
@@ -304,8 +323,7 @@ function colision(first, second) {
               first.y > second.y + second.height || // <------- la punta de inicio de PRIMERA y esta mas abajo de la altura de SECOND y -(por debajo)- 
               first.y + first.height < second.y)    // <------- La altura de PRIMERA y es menor que la punta o inicio de SECOND y -(por arriba)-
               
-       ) {
-            return true // <----- ! como hay negacion si estan chocando y regresa verdadero en la colision
-       }
+       )  return true // <----- ! como hay negacion si estan chocando y regresa verdadero en la colision
+       
     
 }
