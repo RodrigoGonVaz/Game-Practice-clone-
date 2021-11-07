@@ -69,8 +69,8 @@ class Cell {
     constructor(x,y){
         this.x = x;
         this.y = y;
-        this.width = cellSize;
-        this.height = cellSize;
+        this.width = cellSize - cellGap * 2;
+        this.height = cellSize - cellGap * 2;
     }
     draw(){
         //si mouse.x tiene cordenadas (verdadero) y mouse.y tiene coordenas (verdadero) y...
@@ -375,4 +375,7 @@ function colision(first, second) {
        )  return true // <----- ! como hay negacion si estan chocando y regresa verdadero en la colision
 };
 
+window.addEventListener('resize', function() { // <---- cuando el browser cambia de tamaño el mouse Position se mueve pero la funcion lo recalcula 
+    canvasPosition = $canvas.getBoundingClientRect();    
+})
 
