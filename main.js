@@ -281,7 +281,26 @@ function handleEnemies(){
 }
 
 // Resources
-
+// --------GANAR RECURSOS---------
+const amounts = [20, 30, 40];
+class Resources {
+    constructor(x,y){
+     this.x = Math.random() * ($canvas.width - cellSize);  // <-- para que los recursos no salgan tanto a la derecha (100px)
+     // redondea por las 5 columnas y multiplica para que sea multiplos de 100/200/300/400/500 
+     //y para que salgan en medio del cuadro de 100x100 le sumamos 25 de alto
+     this.y = (Math.floor(Math.random() * 5) + 1) * cellSize + 25;
+     this.width = cellSize * 0.6;
+     this.height  = cellSize * 0.6;
+     this.amount = amounts[Math.floor(Math.random()* amounts.length)]; // <-- random de recursos generados
+    }
+    draw(){
+        ctx.fillStyle = 'yellow';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = 'black';
+        ctx.font = '20px Orbitron';
+        ctx.fillText(this.amount, this.x + 15, this.y + 25);
+    }
+}
 
 
 //Utilities 
