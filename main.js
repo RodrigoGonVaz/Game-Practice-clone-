@@ -150,8 +150,8 @@ class Defender {
     constructor(x,y){
         this.x = x;
         this.y = y; 
-        this.width = cellSize;
-        this.hight = cellSize;
+        this.width = cellSize - cellGap * 2; // <- reduce el cuadro del defensor por arriba y abajo en 6
+        this.hight = cellSize - cellGap * 2;
         this.shooting = false; // <----- se usara cuando un defensor detecte un enemigo para disparar
         this.health = 100;
         this.projecticles = []; // <---- info de que tipo de projectiles esta disparando la instancia que se creo
@@ -184,8 +184,8 @@ $canvas.addEventListener('click', function(){
     // Tomaremos la coordenada principal o original del mouse en X y 
     // supongamos que la posicion del mouse es 250 en X y cellSize = 100 entonces 250 - (50) = 200 
     // Esto es el valor dela posicion de mi Celda en X a la izquierda
-    const gridPositionX = mouse.x - (mouse.x % cellSize);
-    const gridPositionY = mouse.y - (mouse.y % cellSize);
+    const gridPositionX = mouse.x - (mouse.x % cellSize) + cellGap;
+    const gridPositionY = mouse.y - (mouse.y % cellSize) + cellGap;
     if (gridPositionY < cellSize) return; // <--- Si doy click en los primero 100 de Hight no pasa nada
         for (let i = 0; i < defenders.length; i++) {
             if (defenders[i].x === gridPositionX && defenders[i].y === gridPositionY) {
@@ -279,6 +279,8 @@ function handleEnemies(){
         } 
     }
 }
+
+// Resources
 
 
 
