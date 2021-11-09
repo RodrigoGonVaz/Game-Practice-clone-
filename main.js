@@ -3,16 +3,17 @@ const ctx = $canvas.getContext("2d");
 $canvas.width = 900;
 $canvas.height = 600;
 
-//global variables
-const cellSize = 100; // <-- Celda como en excel
-const cellGap = 3;
+//Variables Globales
+let cellSize = 100; // <-- Celda como en excel
+let cellGap = 3;
 // es un array de los cuadros que s emuestran en el canvas la mover el mouse (45 objetos)
 const gameGrid = [];
 // Un arreglo que contiene a todos los que defienden
-const defenders = [];
+const doges = [];
 let numberOfResources = 300;
 //Un Array que contiene todos los enemigos
 const enemies = [];
+const superBoss = [];
 // Un array que nos ayudara ver la posicion de cada enemigo para el Defensor (se llena en *handleEnemies*)
 const enemyPosition = []; 
 let enemiesInterval = 600; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
@@ -20,21 +21,21 @@ let frame = 0; // <--- para crear a los enemigos periodicamente
 let gameOver = false;
 // Se mostrara en la funcion *-handleGameStatus*
 let score = 0;
-const winningScore = 10;
+const winningScore = 100;
 //Para iterar sobre los proyectiles
 const projectiles = [];
-//Array de recursos para meterlos aqui, cuando se crean en animate
+//Array de recursos para meterlos aqui, cuando se crean en start
 const resources = [];
 
 
 
 
-//Mouse object
+//Mouse (pos)
 const mouse = {
     x: 10,
     y: 10,
-    width: 0.1,
-    height: 0.1,
+    width: 0,
+    height: 0,
 
 }
 // getBoundingClientRect -> esta funcion regresa un objecto del DOM (rectangulo) que contiene info
@@ -74,7 +75,7 @@ class Cell {
     }
     draw(){
         //si mouse.x tiene cordenadas (verdadero) y mouse.y tiene coordenas (verdadero) y...
-        // si (first = this.cell (esta instancia) y la posicion del mouse) - regresa o pinta esta misma cell(instancia)
+        // si (defensor = this.cell (esta instancia) y la posicion del mouse) - regresa o pinta esta misma cell(instancia)
         if (mouse.x && mouse.y && colision(this, mouse)) {
             ctx.strokeStyle = 'black';
             ctx.strokeRect(this.x, this.y, this.width, this.height);  
@@ -95,7 +96,7 @@ function createGrid() {
     }
 }
 createGrid();
-// para llamar a la funcion *handleGameGrid* la ponemos en la funcion de animate
+// para llamar a la funcion *handleGameGrid* la ponemos en la funcion de start
 function handleGameGrid() {
     // iterando por el array y dibujando cada una de las Cells (o INSTANCIAS)
     for (let i = 0; i < gameGrid.length; i++) {
@@ -125,9 +126,9 @@ class Projectile {
         ctx.fill();  // <---- lo rellena de negro
     }
 }
-// para llamar a la funcion *handleProjectiles* la ponemos en la funcion de animate
+// para llamar a la funcion *handleProjectiles* la ponemos en la funcion de start
 function handleProjectiles() {
-    // iterando por el array y dibujando cada una de las balas (o INSTANCIAS) --- *ESTE ARREGLO SE VA LLENANDO en Class Defender* ---
+    // iterando por el array y dibujando cada una de las balas (o INSTANCIAS) --- *ESTE ARREGLO SE VA LLENANDO en Class doge* ---
     for (let i = 0; i < projectiles.length; i++) {
         projectiles[i].update();
         projectiles[i].draw();
@@ -148,9 +149,9 @@ function handleProjectiles() {
 
 
 
-//Defenders
+//DOGE
 // ----------CLASSES----------------//
-class Defender {
+class Doge {
     constructor(x,y){
         this.x = x;
         this.y = y; 
@@ -164,7 +165,7 @@ class Defender {
     }
     draw() {
         ctx.fillStyle = 'blue';
-        ctx.fillRect(this.x, this.y, cellSize, cellSize);
+        ctx.fillRect(this.x, this.y,  this.width, this.hight); // <-----  OJO Revisar por que no me esta tomando 
         ctx.fillStyle = 'gold'; // <------ Vamos a dibujar tambien su vida con los siguientes atributos:
         ctx.font = '30px Orbitron'; // <----- al poner este atributo la funcion esta esperando ordenes de escribir algo: (this.health)
         // la vida se representa en integrales en 👇  la posicion que tenga el defensor
@@ -183,44 +184,44 @@ class Defender {
     
 }
 
-// -------Evento del DEFENSOR-----------
+// -------Evento del DOGE-----------
 $canvas.addEventListener('click', function(){
-    // Tomaremos la coordenada principal o original del mouse en X y 
+    // Tomaremos la coordenada principal o original del mouse en X y Y
     // supongamos que la posicion del mouse es 250 en X y cellSize = 100 entonces 250 - (50) = 200 
-    // Esto es el valor dela posicion de mi Celda en X a la izquierda
+    // Esto es el valor dela posicion de mi Celda en X a la izquierda (son 9 columnas - 900px)
     const gridPositionX = mouse.x - (mouse.x % cellSize) + cellGap;
     const gridPositionY = mouse.y - (mouse.y % cellSize) + cellGap;
     if (gridPositionY < cellSize) return; // <--- Si doy click en los primero 100 de Hight no pasa nada
-        for (let i = 0; i < defenders.length; i++) {
-            if (defenders[i].x === gridPositionX && defenders[i].y === gridPositionY) {
+        for (let i = 0; i < doges.length; i++) {
+            if (doges[i].x === gridPositionX && doges[i].y === gridPositionY) {
                 return; // <---- Si la posicion del defensor que ya habia colocado es igual al click de mi nueva CELDA (NO HAGAS NADA)
             }}
-    let defenderCost = 100; // el costo de mis defensores el cual ira desendiendo
-    if (numberOfResources >= defenderCost) { // <----- Si tenego recursos entonces que se ejecute la Classe Defender y se guarde en arr de Defender
-        defenders.push(new Defender(gridPositionX, gridPositionY));
-        numberOfResources -= defenderCost; // <----- al crear el defensor le resta recursos a mi variable
+    let dogeCost = 100; // el costo de mis defensores el cual ira desendiendo
+    if (numberOfResources >= dogeCost) { // <----- Si tenego recursos entonces que se ejecute la Classe doge y se guarde en arr de doge
+        doges.push(new Doge(gridPositionX, gridPositionY));
+        numberOfResources -= dogeCost; // <----- al crear el defensor le resta recursos a mi variable
     }
 })
-// para llamar a la funcion *handleDefenders* la ponemos en la funcion de animate
-function handleDefenders() {
-    // Loop que itera en el array global que se va a ir llenando en mi event click de Crear nuevo Defender
-    for (let i = 0; i < defenders.length; i++) {
-        defenders[i].draw();
-        defenders[i].update(); //<--- for each defender creado en el array, llama la funcion update(projectiles)
+// para llamar a la funcion *handleDoges* la ponemos en la funcion de start
+function handleDoges() {
+    // Loop que itera en el array global que se va a ir llenando en mi event click de Crear nuevo doge
+    for (let i = 0; i < doges.length; i++) {
+        doges[i].draw();
+        doges[i].update(); //<--- for each doge creado en el array, llama la funcion update(projectiles)
         // <- array que se va a revisar si aun tiene la misma coordenada defensor y enemigo en Y (no es -1 DISPARA)
         // si la posision del enemigo no encuentra la misma coordenada que el defensor en Y me da -1 (SE DETIENEN LAS BALAS)
-        if (enemyPosition.indexOf(defenders[i].y) !== -1) {  
-            defenders[i].shooting = true;
+        if (enemyPosition.indexOf(doges[i].y) !== -1) {  
+            doges[i].shooting = true;
         } else {
-            defenders[i].shooting = false;
+            doges[i].shooting = false;
         }
         for (let u = 0; u < enemies.length; u++) {  //<---- loop en el array de los enemigos que se van creando (instancias)
-            if (defenders[i] && colision(defenders[i], enemies[u])) {  // <---- condicion de la funcion de colision / revisa a cada defensor y enemigo si se tocan
+            if (doges[i] && colision(doges[i], enemies[u])) {  // <---- condicion de la funcion de colision / revisa a cada defensor y enemigo si se tocan
                 enemies[u].movement = 0;               // si se tocan enemigo iterado se deja de mover
-                defenders[i].health -= 0.2;            // si se tocan quitale vida al defensor
+                doges[i].health -= 0.2;            // si se tocan quitale vida al defensor
             }
-            if (defenders[i] && defenders[i].health <= 0) {  //<---- si el la vida de mi defensor es menor o igual a 0, quitalo de mi array
-                defenders.splice(i, 1); //<--- aquel defensor que tiene menos se quita del array y solo se quita 1 objeto del array
+            if (doges[i] && doges[i].health <= 0) {  //<---- si el la vida de mi defensor es menor o igual a 0, quitalo de mi array
+                doges.splice(i, 1); //<--- aquel defensor que tiene menos se quita del array y solo se quita 1 objeto del array
                 i--;  // <--- para que no se salte el siguiente objeto del array en el loop, ponemos menos 1 en el index 
                 enemies[u].movement = enemies[u].speed;
             }            
@@ -229,14 +230,14 @@ function handleDefenders() {
     }
 }
 
-//Enemy
+//ENEMIGO
 // ----------CLASSES----------------//
 class Enemy {
     constructor(verticalPosition){ // <---- parametro se crea en la funcion *handleEnemies*
         this.x = $canvas.width;  // <---- para que el enemigo salga por detras del ancho del canvas
         this.y = verticalPosition; // <----- una variable global para que el defensor tambien pueda acceder a ella
-        this.width = cellSize - cellGap * 2;;
-        this.height = cellSize - cellGap * 2;;
+        this.width = cellSize - cellGap * 2;
+        this.height = cellSize - cellGap * 2;
         this.speed = Math.random() * 0.2 + 0.4; // <-- Max de velocidad 4.2 px
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 100;
@@ -247,14 +248,15 @@ class Enemy {
     }
     draw(){
         ctx.fillStyle = "#31daFB";
-        ctx.fillRect(this.x, this.y, cellSize, cellSize);
+        ctx.fillRect(this.x, this.y, this.width, this.height); // <-----  OJO Revisar por que no me esta tomando 
         ctx.fillStyle = 'red';
         ctx.font = '30px Orbitron';
         ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
         
     }
 }
-// para llamar a la funcion *handleEnemies* la ponemos en la funcion de animate
+
+// para llamar a la funcion *handleEnemies* la ponemos en la funcion de start
 function handleEnemies(){
     for (let i = 0; i < enemies.length; i++) { // <--- por cada objeto en ese Array:
         enemies[i].update();   // <---- hara que se muevan 
@@ -284,7 +286,63 @@ function handleEnemies(){
     }
 }
 
-// Resources
+class Boss extends Enemy {
+    constructor(verticalPosition){
+        super(verticalPosition);
+        this.img1 = new Image();
+		this.img2 = new Image();
+		this.img3 = new Image();
+		this.img4 = new Image();
+        this.img5 = new Image();
+		this.img1.src = "./Images/A.PNG";
+		this.img2.src = "./Images/B.PNG";
+		this.img3.src = "./Images/C.PNG";
+		this.img4.src = "./Images/D.PNG";
+        this.img5.src = "./Images/E.PNG";
+		this.animation = 1;
+	}
+    update(){
+        this.x -= this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
+    }
+    draw(){
+		if (frames % 100 === 0) {
+			this.animation++;
+			if (this.animation === 5) this.animation = 1; //<--- Mantener un numero entre 1 a 5 (cambiando de imagen)
+		}
+
+        if (this.animation === 1) {
+            ctx.drawImage(this.img1, this.x, this.y, this.width, this.height);        
+        }else if (this.animation === 2) {
+            ctx.drawImage(this.img2, this.x, this.y, this.width, this.height);
+        }else if (this.animation === 3) {
+            ctx.drawImage(this.img3, this.x, this.y, this.width, this.height);
+        }else if (this.animation === 4) {
+            ctx.drawImage(this.img4, this.x, this.y, this.width, this.height);
+        }else {
+            ctx.drawImage(this.img5, this.x, this.y, this.width, this.height);
+        }
+
+        ctx.fillStyle = 'red';
+        ctx.font = '30px Orbitron';
+        ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        
+    }
+    }
+
+// para llamar a la funcion *handleBoss* la ponemos en la funcion de start
+function handleBoss(){
+    if (frame % 100 === 0){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
+        let verticalPosition = Math.floor(Math.random() * 5 + 1) * cellSize + cellGap; // <---- verticalPosition sera un num random entre 100/200/300/400/500 coordenadas horizontales la celda
+        superBoss.push(new Boss(verticalPosition));
+    } 
+	superBoss.forEach((boss) => {
+		boss.draw();
+        boss.update();
+	});
+}
+
+
+// RECURSOS
 // --------GANAR RECURSOS---------
 const amounts = [20, 30, 40];
 class Resources {
@@ -312,7 +370,7 @@ function handleResources() {
     } 
     for (let i = 0; i < resources.length; i++) {
         resources[i].draw();
-        if (resources[i] && mouse.x && mouse.y && colision(resources[i], mouse)) {
+        if (resources[i] && mouse.x && mouse.y && colision(resources[i], mouse)) { //<----- si mi mouse pasa por encima del recurso, entonces se llena mi array resources[i].amount
             numberOfResources += resources[i].amount;
             resources.splice(i,1);
             i --;
@@ -324,7 +382,7 @@ function handleResources() {
 
 
 //Utilities 
-// para llamar a la funcion *handleGameStatus* la ponemos en la funcion de animate
+// para llamar a la funcion *handleGameStatus* la ponemos en la funcion de start
 function handleGameStatus(){
     ctx.fillStyle = 'gold';
     ctx.font = '30px Orbitron';
@@ -345,37 +403,56 @@ function handleGameStatus(){
      }
 }
 
-function animate() {
+function start() {
     ctx.clearRect(0,0, $canvas.width, $canvas.height);
     ctx.fillStyle = "blue";
     ctx.fillRect(0, 0, controlsBar.width, controlsBar.height);
     handleGameGrid();
-    handleDefenders();
+    handleDoges();
     handleResources();
     handleProjectiles();
     handleEnemies();
+    handleBoss();
     handleGameStatus();
     frame ++;
     if (!gameOver) {
-        requestAnimationFrame(animate); // <--- si no ha perdido sigue ejecutando animate
+        requestAnimationFrame(start); // <--- si no ha perdido sigue ejecutando start
     }
     
 }
-animate();
+start();
 
 // Esta funcion se activa en la class Cell cuando pasa una condicion
-function colision(first, second) {
+function colision(defensor, enemigo) {
     // -----👇  si esta condicion es negativa = TRUE, si no se tocan es verdadero
     // primer rectangulo comparado con el segundo rectangulo en X y Y - y ancho y alto
-    if (    !(first.x > second.x + second.width ||  // <------- la punta de inicio de PRIMERA x esta mas a la derecha del ancho de SECOND x -(a su derecha)-
-              first.x + first.width < second.x ||   // <------- El ancho de PRIMERA x es menor que la punta o inicio de SECOND x -(a su izquierda)-
-              first.y > second.y + second.height || // <------- la punta de inicio de PRIMERA y esta mas abajo de la altura de SECOND y -(por debajo)- 
-              first.y + first.height < second.y)    // <------- La altura de PRIMERA y es menor que la punta o inicio de SECOND y -(por arriba)-
+    if (    !(defensor.x > enemigo.x + enemigo.width ||  // <------- la punta de inicio de PRIMERA x esta mas a la derecha del ancho de enemigo x -(a su derecha)-
+              defensor.x + defensor.width < enemigo.x ||   // <------- El ancho de PRIMERA x es menor que la punta o inicio de enemigo x -(a su izquierda)-
+              defensor.y > enemigo.y + enemigo.height || // <------- la punta de inicio de PRIMERA y esta mas abajo de la altura de enemigo y -(por debajo)- 
+              defensor.y + defensor.height < enemigo.y)    // <------- La altura de PRIMERA y es menor que la punta o inicio de enemigo y -(por arriba)-
               
-       )  return true // <----- ! como hay negacion si estan chocando y regresa verdadero en la colision
+       ) {
+           return true // <----- ! como hay negacion si estan chocando y regresa verdadero en la colision
+       } else if (defensor.x > enemigo.x + enemigo.width ||  
+       defensor.x + defensor.width < enemigo.x ||   
+       defensor.y > enemigo.y + enemigo.height || 
+       defensor.y + defensor.height < enemigo.y) {
+           return false
+       }
 };
 
 window.addEventListener('resize', function() { // <---- cuando el browser cambia de tamaño el mouse Position se mueve pero la funcion lo recalcula 
     canvasPosition = $canvas.getBoundingClientRect();    
 })
 
+// if (defensor.x > enemigo.x + enemigo.width - 50 ||
+//     defensor.x + defensor.width - 50 < enemigo.x ||
+//     defensor.y > enemigo.y + enemigo.height - 50 ||
+//     defensor.y + defensor.height - 50 < enemigo.y
+// ) {} else {
+//     explotiosArray.push(new Explotion(enemigo.x, enemigo.y, enemigo.width, enemigo.height))
+//     myAtacks.splice(myAtacks.indexOf(defensor), 1)
+//     soldiersArray.splice(soldiersArray.indexOf(enemigo), 1)
+//     hitEnemySound.innerHTML = '<audio src="../sounds/soldier.mp3" autoplay></audio>'
+//     player.score++
+// }
