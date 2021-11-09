@@ -17,6 +17,7 @@ const superBoss = [];
 // Un array que nos ayudara ver la posicion de cada enemigo para el Defensor (se llena en *handleEnemies*)
 const enemyPosition = []; 
 let enemiesInterval = 600; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
+let bossInterval = 1200;
 let frame = 0; // <--- para crear a los enemigos periodicamente
 let gameOver = false;
 // Se mostrara en la funcion *-handleGameStatus*
@@ -226,12 +227,25 @@ function handleDoges() {
                 enemies[u].movement = enemies[u].speed;
             }            
         }
-        
     }
+    
+    superBoss.forEach((boss) => {
+       doges.forEach(doge => {
+         if (colisionBoss(doge, boss)){
+            boss.movement = 0;              
+            doge.health -= 0.2;   
+         }
+       });
+    });
 }
 
 //ENEMIGO
 // ----------CLASSES----------------//
+const enemyTypes = [];
+const enemyDoge = new Image();
+enemyDoge.src = "./Images/doge.png"
+enemyTypes.push(enemyDoge);
+
 class Enemy {
     constructor(verticalPosition){ // <---- parametro se crea en la funcion *handleEnemies*
         this.x = $canvas.width;  // <---- para que el enemigo salga por detras del ancho del canvas
@@ -242,9 +256,23 @@ class Enemy {
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 100;
         this.maxHealth = this.health; // <--- nos ayuda a darnos mas puntos dependiendo del enemigo que eliminemos.
+        this.enemyType = enemyTypes[0];
+        this.frameX = 0;
+        this.frameY = 0; 
+        this.minFrame = 0;
+        this.maxFrame = 4;
+        this.spriteWidth = 144;
+        this.spriteHeight = 144;
     }
     update(){
         this.x -= this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
+        if (frame % 10 === 0) {
+            if (this.frameX < this.maxFrame) {
+                this.frameX ++;
+            } else {
+                this.frameX = this.minFrame = 0;
+            }    
+        }
     }
     draw(){
         ctx.fillStyle = "#31daFB";
@@ -252,6 +280,7 @@ class Enemy {
         ctx.fillStyle = 'red';
         ctx.font = '30px Orbitron';
         ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        ctx.drawImage(this.enemyType, this.frameX * this.spriteWidth,0,this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height)
         
     }
 }
@@ -289,6 +318,12 @@ function handleEnemies(){
 class Boss extends Enemy {
     constructor(verticalPosition){
         super(verticalPosition);
+        this.width = cellSize + 100;
+        this.height = cellSize + 100;
+        this.speed = Math.random() * 0.2 + 0.9;
+        this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
+        this.health = 300;
+        this.maxHealth = this.health;
         this.img1 = new Image();
 		this.img2 = new Image();
 		this.img3 = new Image();
@@ -299,46 +334,54 @@ class Boss extends Enemy {
 		this.img3.src = "./Images/C.PNG";
 		this.img4.src = "./Images/D.PNG";
         this.img5.src = "./Images/E.PNG";
-		this.animation = 1;
+		this.animation = 0;
 	}
     update(){
         this.x -= this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
     }
     draw(){
-		if (frames % 100 === 0) {
+		if (frames % 10 === 0) {
 			this.animation++;
 			if (this.animation === 5) this.animation = 1; //<--- Mantener un numero entre 1 a 5 (cambiando de imagen)
 		}
 
         if (this.animation === 1) {
-            ctx.drawImage(this.img1, this.x, this.y, this.width, this.height);        
+            ctx.drawImage(this.img1, this.x, this.y + 22, this.width, this.height);        
         }else if (this.animation === 2) {
-            ctx.drawImage(this.img2, this.x, this.y, this.width, this.height);
+            ctx.drawImage(this.img2, this.x, this.y + 22, this.width, this.height);
         }else if (this.animation === 3) {
-            ctx.drawImage(this.img3, this.x, this.y, this.width, this.height);
+            ctx.drawImage(this.img3, this.x, this.y + 22, this.width, this.height);
         }else if (this.animation === 4) {
-            ctx.drawImage(this.img4, this.x, this.y, this.width, this.height);
+            ctx.drawImage(this.img4, this.x, this.y + 22, this.width, this.height);
         }else {
-            ctx.drawImage(this.img5, this.x, this.y, this.width, this.height);
+            ctx.drawImage(this.img5, this.x, this.y + 22, this.width, this.height);
         }
 
         ctx.fillStyle = 'red';
-        ctx.font = '30px Orbitron';
-        ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        ctx.font = '20px Orbitron';
+        ctx.fillText(Math.floor(this.health), this.x + 80, this.y + 100);
         
     }
     }
 
 // para llamar a la funcion *handleBoss* la ponemos en la funcion de start
 function handleBoss(){
-    if (frame % 100 === 0){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
-        let verticalPosition = Math.floor(Math.random() * 5 + 1) * cellSize + cellGap; // <---- verticalPosition sera un num random entre 100/200/300/400/500 coordenadas horizontales la celda
-        superBoss.push(new Boss(verticalPosition));
-    } 
 	superBoss.forEach((boss) => {
 		boss.draw();
-        boss.update();
-	});
+        boss.update();        
+	});    
+    superBoss.forEach((boss) => {
+        if (boss.x < - 45 ) {
+        gameOver = true            
+      }});
+
+      if (frame % bossInterval === 0 && score < winningScore) {  // <---- cada que el frame sea divisible por *bossInterval (1200), un boss saldra
+        let verticalPosition = Math.floor(Math.random() * 4 + 1) * cellSize + cellGap; // <---- verticalPosition sera un num random entre 100/200/300/400 coordenadas horizontales la celda
+        superBoss.push(new Boss(verticalPosition));
+        enemyPosition.push(verticalPosition)   // <--- Array se va llenando por cada posicion nueva del enemigo que este ACTIVO
+    }
+  
+
 }
 
 
@@ -441,18 +484,22 @@ function colision(defensor, enemigo) {
        }
 };
 
+// Esta funcion se activa en la class Cell cuando pasa una condicion
+function colisionBoss(defensor, enemigo) {
+    // -----👇  si esta condicion es negativa = TRUE, si no se tocan es verdadero
+    // primer rectangulo comparado con el segundo rectangulo en X y Y - y ancho y alto
+    if ((defensor.x < enemigo.x  + enemigo.width - 80 ||  // <------- la punta de inicio de PRIMERA x esta mas a la derecha del ancho de enemigo x -(a su derecha)-
+         defensor.x + defensor.width - 80 > enemigo.x ||   // <------- El ancho de PRIMERA x es menor que la punta o inicio de enemigo x -(a su izquierda)-
+         defensor.y < enemigo.y + enemigo.height || // <------- la punta de inicio de PRIMERA y esta mas abajo de la altura de enemigo y -(por debajo)- 
+         defensor.y + defensor.height > enemigo.y)    // <------- La altura de PRIMERA y es menor que la punta o inicio de enemigo y -(por arriba)-
+              
+       ) {
+           return true // <----- ! como hay negacion si estan chocando y regresa verdadero en la colision
+       } 
+};
+
+
 window.addEventListener('resize', function() { // <---- cuando el browser cambia de tamaño el mouse Position se mueve pero la funcion lo recalcula 
     canvasPosition = $canvas.getBoundingClientRect();    
 })
 
-// if (defensor.x > enemigo.x + enemigo.width - 50 ||
-//     defensor.x + defensor.width - 50 < enemigo.x ||
-//     defensor.y > enemigo.y + enemigo.height - 50 ||
-//     defensor.y + defensor.height - 50 < enemigo.y
-// ) {} else {
-//     explotiosArray.push(new Explotion(enemigo.x, enemigo.y, enemigo.width, enemigo.height))
-//     myAtacks.splice(myAtacks.indexOf(defensor), 1)
-//     soldiersArray.splice(soldiersArray.indexOf(enemigo), 1)
-//     hitEnemySound.innerHTML = '<audio src="../sounds/soldier.mp3" autoplay></audio>'
-//     player.score++
-// }
