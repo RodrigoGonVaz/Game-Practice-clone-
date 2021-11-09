@@ -12,15 +12,15 @@ let cellGap = 3;
 // es un array de los cuadros que s emuestran en el canvas la mover el mouse (45 objetos)
 const gameGrid = [];
 // Un arreglo que contiene a todos los que defienden
-const doges = [];
+const dogeKillers = [];
 let numberOfResources = 300;
 //Un Array que contiene todos los enemigos
 const enemies = [];
 const superBoss = [];
 // Un array que nos ayudara ver la posicion de cada enemigo para el Defensor (se llena en *handleEnemies*)
 const enemyPosition = []; 
-let enemiesInterval = 600; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
-let bossInterval = 1200;
+let enemiesInterval = 6000; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
+let bossInterval = 12000;
 let frame = 0; // <--- para crear a los enemigos periodicamente
 let gameOver = false;
 // Se mostrara en la funcion *-handleGameStatus*
@@ -132,7 +132,7 @@ class Projectile {
 }
 // para llamar a la funcion *handleProjectiles* la ponemos en la funcion de start
 function handleProjectiles() {
-    // iterando por el array y dibujando cada una de las balas (o INSTANCIAS) --- *ESTE ARREGLO SE VA LLENANDO en Class doge* ---
+    // iterando por el array y dibujando cada una de las balas (o INSTANCIAS) --- *ESTE ARREGLO SE VA LLENANDO en Class dogeKiller* ---
     for (let i = 0; i < projectiles.length; i++) {
         projectiles[i].update();
         projectiles[i].draw();
@@ -153,9 +153,9 @@ function handleProjectiles() {
 
 
 
-//DOGE
+//DogeKiller
 // ----------CLASSES----------------//
-class Doge {
+class DogeKiller {
     constructor(x,y){
         this.x = x;
         this.y = y; 
@@ -185,10 +185,18 @@ class Doge {
        this.timer = 0; 
     }
     }
+    isTouching(boss){
+        return (
+			this.x < boss.x + boss.width &&
+			this.x + this.width > boss.x &&
+			this.y < boss.y + boss.height &&
+			this.y + this.height > boss.y
+		);
+    }
     
 }
 
-// -------Evento del DOGE-----------
+// -------Evento del DogeKiller-----------
 $canvas.addEventListener('click', function(){
     // Tomaremos la coordenada principal o original del mouse en X y Y
     // supongamos que la posicion del mouse es 250 en X y cellSize = 100 entonces 250 - (50) = 200 
@@ -196,50 +204,50 @@ $canvas.addEventListener('click', function(){
     const gridPositionX = mouse.x - (mouse.x % cellSize) + cellGap;
     const gridPositionY = mouse.y - (mouse.y % cellSize) + cellGap;
     if (gridPositionY < cellSize) return; // <--- Si doy click en los primero 100 de Hight no pasa nada
-        for (let i = 0; i < doges.length; i++) {
-            if (doges[i].x === gridPositionX && doges[i].y === gridPositionY) {
+        for (let i = 0; i < dogeKillers.length; i++) {
+            if (dogeKillers[i].x === gridPositionX && dogeKillers[i].y === gridPositionY) {
                 return; // <---- Si la posicion del defensor que ya habia colocado es igual al click de mi nueva CELDA (NO HAGAS NADA)
             }}
-    let dogeCost = 100; // el costo de mis defensores el cual ira desendiendo
-    if (numberOfResources >= dogeCost) { // <----- Si tenego recursos entonces que se ejecute la Classe doge y se guarde en arr de doge
-        doges.push(new Doge(gridPositionX, gridPositionY));
-        numberOfResources -= dogeCost; // <----- al crear el defensor le resta recursos a mi variable
+    let dogeKillerCost = 100; // el costo de mis defensores el cual ira desendiendo
+    if (numberOfResources >= dogeKillerCost) { // <----- Si tenego recursos entonces que se ejecute la Classe dogeKiller y se guarde en arr de dogeKiller
+        dogeKillers.push(new DogeKiller(gridPositionX, gridPositionY));
+        numberOfResources -= dogeKillerCost; // <----- al crear el defensor le resta recursos a mi variable
     }
 })
-// para llamar a la funcion *handleDoges* la ponemos en la funcion de start
-function handleDoges() {
-    // Loop que itera en el array global que se va a ir llenando en mi event click de Crear nuevo doge
-    for (let i = 0; i < doges.length; i++) {
-        doges[i].draw();
-        doges[i].update(); //<--- for each doge creado en el array, llama la funcion update(projectiles)
+// para llamar a la funcion *handledogeKillers* la ponemos en la funcion de start
+function handledogeKillers() {
+    // Loop que itera en el array global que se va a ir llenando en mi event click de Crear nuevo dogeKiller
+    for (let i = 0; i < dogeKillers.length; i++) {
+        dogeKillers[i].draw();
+        dogeKillers[i].update(); //<--- for each dogeKiller creado en el array, llama la funcion update(projectiles)
         // <- array que se va a revisar si aun tiene la misma coordenada defensor y enemigo en Y (no es -1 DISPARA)
         // si la posision del enemigo no encuentra la misma coordenada que el defensor en Y me da -1 (SE DETIENEN LAS BALAS)
-        if (enemyPosition.indexOf(doges[i].y) !== -1) {  
-            doges[i].shooting = true;
+        if (enemyPosition.indexOf(dogeKillers[i].y) !== -1) {  
+            dogeKillers[i].shooting = true;
         } else {
-            doges[i].shooting = false;
+            dogeKillers[i].shooting = false;
         }
         for (let u = 0; u < enemies.length; u++) {  //<---- loop en el array de los enemigos que se van creando (instancias)
-            if (doges[i] && colision(doges[i], enemies[u])) {  // <---- condicion de la funcion de colision / revisa a cada defensor y enemigo si se tocan
+            if (dogeKillers[i] && colision(dogeKillers[i], enemies[u])) {  // <---- condicion de la funcion de colision / revisa a cada defensor y enemigo si se tocan
                 enemies[u].movement = 0;               // si se tocan enemigo iterado se deja de mover
-                doges[i].health -= 0.2;            // si se tocan quitale vida al defensor
+                dogeKillers[i].health -= 0.2;            // si se tocan quitale vida al defensor
             }
-            if (doges[i] && doges[i].health <= 0) {  //<---- si el la vida de mi defensor es menor o igual a 0, quitalo de mi array
-                doges.splice(i, 1); //<--- aquel defensor que tiene menos se quita del array y solo se quita 1 objeto del array
+            if (dogeKillers[i] && dogeKillers[i].health <= 0) {  //<---- si el la vida de mi defensor es menor o igual a 0, quitalo de mi array
+                dogeKillers.splice(i, 1); //<--- aquel defensor que tiene menos se quita del array y solo se quita 1 objeto del array
                 i--;  // <--- para que no se salte el siguiente objeto del array en el loop, ponemos menos 1 en el index 
                 enemies[u].movement = enemies[u].speed;
             }            
         }
+        superBoss.forEach((boss) => {
+           dogeKillers.forEach(dogeKiller => {
+             if (dogeKiller.isTouching(boss)){
+                boss.movement = 0;              
+                dogeKiller.health -= 0.2;   
+             }
+           });
+        });
     }
     
-    superBoss.forEach((boss) => {
-       doges.forEach(doge => {
-         if (colisionBoss(doge, boss)){
-            boss.movement = 0;              
-            doge.health -= 0.2;   
-         }
-       });
-    });
 }
 
 //ENEMIGO
@@ -255,7 +263,7 @@ class Enemy {
         this.y = verticalPosition; // <----- una variable global para que el defensor tambien pueda acceder a ella
         this.width = cellSize - cellGap * 2;
         this.height = cellSize - cellGap * 2;
-        this.speed = Math.random() * 0.2 + 0.4; // <-- Max de velocidad 4.2 px
+        this.speed = Math.random() * 0.2 + 0.1; // <-- Max de velocidad 4.2 px
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 100;
         this.maxHealth = this.health; // <--- nos ayuda a darnos mas puntos dependiendo del enemigo que eliminemos.
@@ -323,7 +331,7 @@ class Boss extends Enemy {
         super(verticalPosition);
         this.width = cellSize + 100;
         this.height = cellSize + 100;
-        this.speed = Math.random() * 0.2 + 0.9;
+        this.speed = Math.random() * 0.2 + 0.1;
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 300;
         this.maxHealth = this.health;
@@ -343,7 +351,7 @@ class Boss extends Enemy {
         this.x -= this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
     }
     draw(){
-		if (frames % 10 === 0) {
+		if (frames % 100 === 0) {
 			this.animation++;
 			if (this.animation === 5) this.animation = 1; //<--- Mantener un numero entre 1 a 5 (cambiando de imagen)
 		}
@@ -411,7 +419,7 @@ class Resources {
 }
 
 function handleResources() {
-    if (frame % 100 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
+    if (frame % 500 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
         resources.push(new Resources());
     } 
     for (let i = 0; i < resources.length; i++) {
@@ -453,7 +461,7 @@ function startGame() {
 	if (intervalId) return;
 	intervalId = setInterval(() => {
 		start();
-	}, 1000 / 60);
+	}, 5000);
 }
 
 
@@ -462,7 +470,7 @@ function start() {
     ctx.fillStyle = "blue";
     ctx.fillRect(0, 0, controlsBar.width, controlsBar.height);
     handleGameGrid();
-    handleDoges();
+    handledogeKillers();
     handleResources();
     handleProjectiles();
     handleEnemies();
@@ -495,19 +503,19 @@ function colision(defensor, enemigo) {
        }
 };
 
-// Esta funcion se activa en la class Cell cuando pasa una condicion
-function colisionBoss(defensor, enemigo) {
-    // -----👇  si esta condicion es negativa = TRUE, si no se tocan es verdadero
-    // primer rectangulo comparado con el segundo rectangulo en X y Y - y ancho y alto
-    if ((defensor.x < enemigo.x  + enemigo.width - 80 ||  // <------- la punta de inicio de PRIMERA x esta mas a la derecha del ancho de enemigo x -(a su derecha)-
-         defensor.x + defensor.width - 80 > enemigo.x ||   // <------- El ancho de PRIMERA x es menor que la punta o inicio de enemigo x -(a su izquierda)-
-         defensor.y < enemigo.y + enemigo.height || // <------- la punta de inicio de PRIMERA y esta mas abajo de la altura de enemigo y -(por debajo)- 
-         defensor.y + defensor.height > enemigo.y)    // <------- La altura de PRIMERA y es menor que la punta o inicio de enemigo y -(por arriba)-
+// // Esta funcion se activa en la class Cell cuando pasa una condicion
+// function colisionBoss(defensor, enemigo) {
+//     // -----👇  si esta condicion es negativa = TRUE, si no se tocan es verdadero
+//     // primer rectangulo comparado con el segundo rectangulo en X y Y - y ancho y alto
+//     if ((defensor.x < enemigo.x  + enemigo.width - 80 ||  // <------- la punta de inicio de PRIMERA x esta mas a la derecha del ancho de enemigo x -(a su derecha)-
+//          defensor.x + defensor.width - 80 > enemigo.x ||   // <------- El ancho de PRIMERA x es menor que la punta o inicio de enemigo x -(a su izquierda)-
+//          defensor.y < enemigo.y + enemigo.height || // <------- la punta de inicio de PRIMERA y esta mas abajo de la altura de enemigo y -(por debajo)- 
+//          defensor.y + defensor.height > enemigo.y)    // <------- La altura de PRIMERA y es menor que la punta o inicio de enemigo y -(por arriba)-
               
-       ) {
-           return true // <----- ! como hay negacion si estan chocando y regresa verdadero en la colision
-       } 
-};
+//        ) {
+//            return true // <----- ! como hay negacion si estan chocando y regresa verdadero en la colision
+//        } 
+// };
 
 $button.onclick = startGame
 
