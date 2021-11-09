@@ -1,8 +1,11 @@
 const $canvas = document.querySelector("canvas");
 const ctx = $canvas.getContext("2d");
+const $button = document.getElementById("startGame")
 $canvas.width = 900;
 $canvas.height = 600;
 
+
+let intervalId; 
 //Variables Globales
 let cellSize = 100; // <-- Celda como en excel
 let cellGap = 3;
@@ -446,6 +449,14 @@ function handleGameStatus(){
      }
 }
 
+function startGame() {
+	if (intervalId) return;
+	intervalId = setInterval(() => {
+		start();
+	}, 1000 / 60);
+}
+
+
 function start() {
     ctx.clearRect(0,0, $canvas.width, $canvas.height);
     ctx.fillStyle = "blue";
@@ -463,7 +474,7 @@ function start() {
     }
     
 }
-start();
+
 
 // Esta funcion se activa en la class Cell cuando pasa una condicion
 function colision(defensor, enemigo) {
@@ -497,6 +508,8 @@ function colisionBoss(defensor, enemigo) {
            return true // <----- ! como hay negacion si estan chocando y regresa verdadero en la colision
        } 
 };
+
+$button.onclick = startGame
 
 
 window.addEventListener('resize', function() { // <---- cuando el browser cambia de tamaño el mouse Position se mueve pero la funcion lo recalcula 
