@@ -185,10 +185,10 @@ function handleProjectiles() {
 
 //DogeKiller
 // ----------CLASSES----------------//
-// const killerType = [];
-// const kirby1 = new Image();
-// kirby1.src = "./Images/kirby.png"
-// killerType.push(kirby1);
+
+const kirby1 = new Image();
+kirby1.src = "./Images/killer/coin.png"
+
 
 class DogeKiller {
     constructor(x,y){
@@ -201,35 +201,42 @@ class DogeKiller {
         this.projecticles = []; // <---- info de que tipo de projectiles esta disparando la instancia que se creo
         this.timer = 0; // <---- nos va a ayudar a detonar algo cuando cierto tiempo pase, 
         //ejemplo cuando pasen 100 seg, projecticles.push un nuevo proyectil a este arr
-        this.img1 = new Image();
-		this.img2 = new Image();
-		this.img3 = new Image();
-		this.img4 = new Image();
-        this.img5 = new Image();
-		this.img1.src = "./Images/killer/a1.png";
-		this.img2.src = "./Images/killer/a2.png";
-		this.img3.src = "./Images/killer/a3.png";
-		this.img4.src = "./Images/killer/a4.png";
-        this.img5.src = "./Images/killer/a5.png";
-		this.animation = 0;
+        // this.img1 = new Image();
+		// this.img2 = new Image();
+		// this.img3 = new Image();
+		// this.img4 = new Image();
+        // this.img5 = new Image();
+		// this.img1.src = "./Images/a1.PNG";
+		// this.img2.src = "./Images/a2.PNG";
+		// this.img3.src = "./Images/a3.PNG";
+		// this.img4.src = "./Images/a4.PNG";
+        // this.img5.src = "./Images/a5.PNG";
+		// this.animation = 0;
+        
+        this.frameX = 0;  //<--- num de frames en la fila
+        this.frameY = 0; //<--- si hay varias filas seria el numero de filas 
+        this.minFrame = 0; //
+        this.maxFrame = 5;
+        this.spriteWidth = 30; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
+        this.spriteHeight = 30;
     }
     draw() {
-        if (frame % 10 === 0) {
-			this.animation++;
-			if (this.animation === 3) this.animation = 1; //<--- Mantener un numero entre 1 a 5 (cambiando de imagen)
-		}
+        // if (frame % 100 === 0) {
+		// 	this.animation++;
+		// 	if (this.animation === 6) this.animation = 1; //<--- Mantener un numero entre 1 a 5 (cambiando de imagen)
+		// }
 
-        if (this.animation === 1) {
-            ctx.drawImage(this.img1, this.x, this.y + 22, this.width, this.height);        
-        } else if (this.animation === 2) {
-            ctx.drawImage(this.img2, this.x, this.y + 22, this.width, this.height);
-        } else if (this.animation === 3) {
-            ctx.drawImage(this.img3, this.x, this.y + 22, this.width, this.height);
-        }else if (this.animation === 4) {
-            ctx.drawImage(this.img4, this.x, this.y + 22, this.width, this.height);
-        }else if (this.animation === 4) {
-            ctx.drawImage(this.img5, this.x, this.y + 22, this.width, this.height);
-        }
+        // if (this.animation === 1) {
+        //     ctx.drawImage(this.img1, this.x, this.y + 22, this.width, this.height);        
+        // } else if (this.animation === 2) {
+        //     ctx.drawImage(this.img2, this.x, this.y + 22, this.width, this.height);
+        // } else if (this.animation === 3) {
+        //     ctx.drawImage(this.img3, this.x, this.y + 22, this.width, this.height);
+        // }else if (this.animation === 4) {
+        //     ctx.drawImage(this.img4, this.x, this.y + 22, this.width, this.height);
+        // }else if (this.animation === 5) {
+        //     ctx.drawImage(this.img5, this.x, this.y + 22, this.width, this.height);
+        // }
         
         ctx.fillStyle = 'blue';
         ctx.fillRect(this.x, this.y,  this.width, this.hight); // <-----  OJO Revisar por que no me esta tomando 
@@ -237,8 +244,17 @@ class DogeKiller {
         ctx.font = '30px Orbitron'; // <----- al poner este atributo la funcion esta esperando ordenes de escribir algo: (this.health)
         // la vida se representa en integrales en 👇  la posicion que tenga el defensor
         ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        ctx.drawImage(kirby1, this.frameX * this.spriteWidth,0, this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height);
+        
     }
     update(){
+       if (frame % 10 === 0) {
+            if (this.frameX < this.maxFrame) {
+                this.frameX ++;
+            } else {
+                this.frameX = this.minFrame = 0;
+            }    
+        }
         
         if (this.shooting) { // <-- si es true dispara
             this.timer ++; 
@@ -367,11 +383,13 @@ class Enemy {
         }
     }
     draw(){
-        ctx.fillStyle = "#31daFB";
-        ctx.fillRect(this.x, this.y, this.width, this.height); // <-----  OJO Revisar por que no me esta tomando 
+        // ctx.fillStyle = "#31daFB";
+        // ctx.fillRect(this.x, this.y, this.width, this.height); // <-----  OJO Revisar por que no me esta tomando 
         ctx.fillStyle = 'red';
         ctx.font = '30px Orbitron';
         ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        //context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
+        //
         ctx.drawImage(this.enemyType, this.frameX * this.spriteWidth,0,this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height)
         
     }
@@ -412,7 +430,7 @@ class Boss extends Enemy {
         super(verticalPosition);
         this.width = cellSize + 100;
         this.height = cellSize + 100;
-        this.speed = Math.random() * 0.2 + 0.7;
+        this.speed = Math.random() * 0.2 + 0.1;
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 300;
         this.maxHealth = this.health;
@@ -507,7 +525,10 @@ function handleBoss(){
 
 // RECURSOS
 // --------GANAR RECURSOS---------
+const coin = new Image();
+coin.src = "./Images/killer/coin.png"
 const amounts = [20, 30, 40];
+
 class Resources {
     constructor(x,y){
      this.x = Math.random() * ($canvas.width - cellSize);  // <-- para que los recursos no salgan tanto a la derecha (100px)
@@ -517,14 +538,30 @@ class Resources {
      this.width = cellSize * 0.6;
      this.height  = cellSize * 0.6;
      this.amount = amounts[Math.floor(Math.random()* amounts.length)]; // <-- random de recursos generados
+     this.frameX = 0;  //<--- num de frames en la fila
+     this.frameY = 0; //<--- si hay varias filas seria el numero de filas 
+     this.minFrame = 0; //
+     this.maxFrame = 5;
+     this.spriteWidth = 30; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
+     this.spriteHeight = 30;
     }
     draw(){
-        ctx.fillStyle = 'yellow';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle = 'black';
+        // ctx.fillStyle = 'yellow';
+        // ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = 'white';
         ctx.font = '20px Orbitron';
-        ctx.fillText(this.amount, this.x + 15, this.y + 25);
+        ctx.fillText(this.amount, this.x + 15, this.y);
+        ctx.drawImage(coin, this.frameX * this.spriteWidth + 5.8,0, this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height);
     }
+    update(){
+        if (frame % 10 === 0) {
+             if (this.frameX < this.maxFrame) {
+                 this.frameX ++;
+             } else {
+                 this.frameX = this.minFrame = 0;
+             }    
+         }
+}
 }
 
 function handleResources() {
@@ -533,6 +570,7 @@ function handleResources() {
     } 
     for (let i = 0; i < resources.length; i++) {
         resources[i].draw();
+        resources[i].update();
         if (resources[i] && mouse.x && mouse.y && colision(resources[i], mouse)) { //<----- si mi mouse pasa por encima del recurso, entonces se llena mi array resources[i].amount
             numberOfResources += resources[i].amount;
             resources.splice(i,1);
@@ -575,9 +613,11 @@ function startGame() {
 
 
 function start() {
+    //Clear
     ctx.clearRect(0,0, $canvas.width, $canvas.height);
+    
     board.draw();
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = "#2a282a";
     ctx.fillRect(0, 0, controlsBar.width, controlsBar.height);
     handleGameGrid();
     handledogeKillers();
