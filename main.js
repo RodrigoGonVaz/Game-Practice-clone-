@@ -22,7 +22,7 @@ const superBoss = [];
 const enemyPosition = [];
 const bossPosition = []; 
 const bossPosition2 = [];
-let enemiesInterval = 50000; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
+let enemiesInterval = 1000; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
 let bossInterval = 1200;
 let frame = 0; // <--- para crear a los enemigos periodicamente
 let frameOver = 0;
@@ -381,7 +381,9 @@ function handledogeKillers() {
 const enemyTypes = [];
 const enemyDoge = new Image();
 enemyDoge.src = "./Images/1doge.png"
-enemyTypes.push(enemyDoge);
+const mamadoDoge = new Image();
+mamadoDoge.src = "./Images/2doge.png"
+enemyTypes.push(enemyDoge, mamadoDoge);
 
 class Enemy {
     constructor(verticalPosition){ // <---- parametro se crea en la funcion *handleEnemies*
@@ -389,7 +391,7 @@ class Enemy {
         this.y = verticalPosition; // <----- una variable global para que el defensor tambien pueda acceder a ella
         this.width = cellSize - cellGap * 2;
         this.height = cellSize - cellGap * 2;
-        this.speed = 0.01; // <-- Max de velocidad 4.2 px
+        this.speed = Math.random() * 0.2 + 0.1;; // <-- Max de velocidad 4.2 px
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 100;
         this.maxHealth = this.health; // <--- nos ayuda a darnos mas puntos dependiendo del enemigo que eliminemos.
@@ -445,7 +447,7 @@ function handleEnemies(){
             i--;  // <---- regresa el arreglo o lo ajusta para no saltar el siguiente objeto iterado
         }
     }
-    if (frame % enemiesInterval === 0 || score < winningScore) {  // <---- cada que el frame sea divisible por *enmiesInterval (600)*, un enemigo saldra
+    if (frame % enemiesInterval === 0  && score < winningScore) {  // <---- cada que el frame sea divisible por *enmiesInterval (600)*, un enemigo saldra
         let verticalPosition = Math.floor(Math.random() * 5 + 1) * cellSize + cellGap; // <---- verticalPosition sera un num random entre 100/200/300/400/500 coordenadas horizontales la celda
         enemies.push(new Enemy(verticalPosition));
         enemyPosition.push(verticalPosition)   // <--- Array se va llenando por cada posicion nueva del enemigo que este ACTIVO
@@ -460,7 +462,7 @@ class Boss extends Enemy {
         super(verticalPosition);
         this.width = cellSize + 100;
         this.height = cellSize + 100;
-        this.speed = 0.01;
+        this.speed = Math.random() * 0.2 + 0.1;
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 300;
         this.maxHealth = this.health;
@@ -666,9 +668,9 @@ function start() {
     handleBoss();
     handleGameStatus();
     frame ++;
-    if (!gameOver) {
-        requestAnimationFrame(start); // <--- si no ha perdido sigue ejecutando start
-    }  
+    if (frame % 60 === 0) {
+        console.log(frame/60)
+    }
 }
 startGame();
 
