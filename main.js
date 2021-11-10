@@ -111,6 +111,27 @@ function handleGameGrid() {
     }
 }
 
+//Board
+// ----------CLASSES----------------//
+
+class Board {
+	constructor() {
+		this.x = 0;
+		this.y = 0;
+		this.width = $canvas.width;
+		this.height = $canvas.height;
+		this.image = new Image();
+		this.image.src = "./Images/moon.png";
+	}
+
+	draw() {
+		ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+	}
+}
+
+const board = new Board();
+
+
 //Projectiles
 // ----------CLASSES----------------//
 class Projectile {
@@ -164,6 +185,11 @@ function handleProjectiles() {
 
 //DogeKiller
 // ----------CLASSES----------------//
+// const killerType = [];
+// const kirby1 = new Image();
+// kirby1.src = "./Images/kirby.png"
+// killerType.push(kirby1);
+
 class DogeKiller {
     constructor(x,y){
         this.x = x;
@@ -175,8 +201,36 @@ class DogeKiller {
         this.projecticles = []; // <---- info de que tipo de projectiles esta disparando la instancia que se creo
         this.timer = 0; // <---- nos va a ayudar a detonar algo cuando cierto tiempo pase, 
         //ejemplo cuando pasen 100 seg, projecticles.push un nuevo proyectil a este arr
+        this.img1 = new Image();
+		this.img2 = new Image();
+		this.img3 = new Image();
+		this.img4 = new Image();
+        this.img5 = new Image();
+		this.img1.src = "./Images/killer/a1.png";
+		this.img2.src = "./Images/killer/a2.png";
+		this.img3.src = "./Images/killer/a3.png";
+		this.img4.src = "./Images/killer/a4.png";
+        this.img5.src = "./Images/killer/a5.png";
+		this.animation = 0;
     }
     draw() {
+        if (frame % 10 === 0) {
+			this.animation++;
+			if (this.animation === 3) this.animation = 1; //<--- Mantener un numero entre 1 a 5 (cambiando de imagen)
+		}
+
+        if (this.animation === 1) {
+            ctx.drawImage(this.img1, this.x, this.y + 22, this.width, this.height);        
+        } else if (this.animation === 2) {
+            ctx.drawImage(this.img2, this.x, this.y + 22, this.width, this.height);
+        } else if (this.animation === 3) {
+            ctx.drawImage(this.img3, this.x, this.y + 22, this.width, this.height);
+        }else if (this.animation === 4) {
+            ctx.drawImage(this.img4, this.x, this.y + 22, this.width, this.height);
+        }else if (this.animation === 4) {
+            ctx.drawImage(this.img5, this.x, this.y + 22, this.width, this.height);
+        }
+        
         ctx.fillStyle = 'blue';
         ctx.fillRect(this.x, this.y,  this.width, this.hight); // <-----  OJO Revisar por que no me esta tomando 
         ctx.fillStyle = 'gold'; // <------ Vamos a dibujar tambien su vida con los siguientes atributos:
@@ -185,6 +239,7 @@ class DogeKiller {
         ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
     }
     update(){
+        
         if (this.shooting) { // <-- si es true dispara
             this.timer ++; 
             if (this.timer % 100 === 0) {        // valor de 👇  70 y 50 para que salga de en medio del cuadro
@@ -357,7 +412,7 @@ class Boss extends Enemy {
         super(verticalPosition);
         this.width = cellSize + 100;
         this.height = cellSize + 100;
-        this.speed = Math.random() * 0.2 + 0.1;
+        this.speed = Math.random() * 0.2 + 0.7;
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 300;
         this.maxHealth = this.health;
@@ -377,20 +432,14 @@ class Boss extends Enemy {
         this.x -= this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
     }
     draw(){
-		if (frames % 100 === 0) {
+		if (frame % 10 === 0) {
 			this.animation++;
-			if (this.animation === 5) this.animation = 1; //<--- Mantener un numero entre 1 a 5 (cambiando de imagen)
+			if (this.animation === 3) this.animation = 1; //<--- Mantener un numero entre 1 a 5 (cambiando de imagen)
 		}
 
         if (this.animation === 1) {
             ctx.drawImage(this.img1, this.x, this.y + 22, this.width, this.height);        
         }else if (this.animation === 2) {
-            ctx.drawImage(this.img2, this.x, this.y + 22, this.width, this.height);
-        }else if (this.animation === 3) {
-            ctx.drawImage(this.img3, this.x, this.y + 22, this.width, this.height);
-        }else if (this.animation === 4) {
-            ctx.drawImage(this.img4, this.x, this.y + 22, this.width, this.height);
-        }else {
             ctx.drawImage(this.img5, this.x, this.y + 22, this.width, this.height);
         }
 
@@ -527,6 +576,7 @@ function startGame() {
 
 function start() {
     ctx.clearRect(0,0, $canvas.width, $canvas.height);
+    board.draw();
     ctx.fillStyle = "blue";
     ctx.fillRect(0, 0, controlsBar.width, controlsBar.height);
     handleGameGrid();
