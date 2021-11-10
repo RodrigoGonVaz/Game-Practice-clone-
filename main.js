@@ -213,7 +213,7 @@ function handleProjectiles() {
 // ----------CLASSES----------------//
 
 const kirby1 = new Image();
-kirby1.src = "./Images/killer/coin.png"
+kirby1.src = "./Images/killer/kirby.png"
 
 
 class DogeKiller {
@@ -242,9 +242,9 @@ class DogeKiller {
         this.frameX = 0;  //<--- num de frames en la fila
         this.frameY = 0; //<--- si hay varias filas seria el numero de filas 
         this.minFrame = 0; //
-        this.maxFrame = 5;
-        this.spriteWidth = 30; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
-        this.spriteHeight = 30;
+        this.maxFrame = 11;
+        this.spriteWidth = 248; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
+        this.spriteHeight = 238;
     }
     draw() {
         // if (frame % 100 === 0) {
@@ -264,8 +264,8 @@ class DogeKiller {
         //     ctx.drawImage(this.img5, this.x, this.y + 22, this.width, this.height);
         // }
         
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(this.x, this.y,  this.width, this.hight); // <-----  OJO Revisar por que no me esta tomando 
+        // ctx.fillStyle = 'blue';
+        // ctx.fillRect(this.x, this.y,  this.width, this.hight); // <-----  OJO Revisar por que no me esta tomando 
         ctx.fillStyle = 'gold'; // <------ Vamos a dibujar tambien su vida con los siguientes atributos:
         ctx.font = '30px Orbitron'; // <----- al poner este atributo la funcion esta esperando ordenes de escribir algo: (this.health)
         // la vida se representa en integrales en 👇  la posicion que tenga el defensor
@@ -273,7 +273,7 @@ class DogeKiller {
         //context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
         // img = imagen / sx = 	Frame index por spriteWidth(para emepzar X=spriteWidth) / sy= frameIndex 0 y no se multiplica por spriteHeight ya que esta en una sola fila
         //sw=spriteWidth / sy=spriteHeight / dx = destino en X/ dy=destino en Y / dw = ancho / dh = alto
-        ctx.drawImage(kirby1, this.frameX * this.spriteWidth,0, this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height);
+        ctx.drawImage(kirby1, this.frameX * this.spriteWidth,0, this.spriteWidth, this.spriteHeight, this.x + 15, this.y + 20,60, 60);
         
     }
     update(){
