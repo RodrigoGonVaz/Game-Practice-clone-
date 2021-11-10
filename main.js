@@ -6,6 +6,7 @@ $canvas.height = 600;
 
 
 let intervalId; 
+let intervalIdEnd;
 //Variables Globales
 let cellSize = 100; // <-- Celda como en excel
 let cellGap = 3;
@@ -24,6 +25,7 @@ const bossPosition2 = [];
 let enemiesInterval = 50000; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
 let bossInterval = 1200;
 let frame = 0; // <--- para crear a los enemigos periodicamente
+let frameOver = 0;
 let gameOver = false;
 // Se mostrara en la funcion *-handleGameStatus*
 let score = 0;
@@ -113,6 +115,9 @@ function handleGameGrid() {
 
 //Board
 // ----------CLASSES----------------//
+const dogeCoin = new Image();
+dogeCoin.src = "./Images/coinDoge/DogeCoin1.png"
+
 
 class Board {
 	constructor() {
@@ -122,11 +127,32 @@ class Board {
 		this.height = $canvas.height;
 		this.image = new Image();
 		this.image.src = "./Images/moon.png";
+        this.image2 = new Image();
+		this.image2.src = "./Images/GameOver.PNG";
+        this.frameX = 0;  //<--- num de frames en la fila
+        this.frameY = 0; //<--- si hay varias filas seria el numero de filas 
+        this.minFrame = 0; //
+        this.maxFrame = 23;
+        this.spriteWidth = 121; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
+        this.spriteHeight = 126;
 	}
 
 	draw() {
 		ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 	}
+    drawGameOver(){
+        ctx.drawImage(this.image2, this.x, this.y, this.width, this.height);
+        ctx.drawImage(dogeCoin, this.frameX * this.spriteWidth + 22,0, this.spriteWidth , this.spriteHeight, this.x + 100, this.y + 200,118, 126);
+    }
+    updateGameOver(){ // itera sobre las imagenes
+        if (frameOver % 5 === 0) {
+             if (this.frameX < this.maxFrame) {
+                 this.frameX ++;
+             } else {
+                 this.frameX = this.minFrame = 0;
+             }    
+         }
+}
 }
 
 const board = new Board();
@@ -244,6 +270,9 @@ class DogeKiller {
         ctx.font = '30px Orbitron'; // <----- al poner este atributo la funcion esta esperando ordenes de escribir algo: (this.health)
         // la vida se representa en integrales en 👇  la posicion que tenga el defensor
         ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        //context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
+        // img = imagen / sx = 	Frame index por spriteWidth(para emepzar X=spriteWidth) / sy= frameIndex 0 y no se multiplica por spriteHeight ya que esta en una sola fila
+        //sw=spriteWidth / sy=spriteHeight / dx = destino en X/ dy=destino en Y / dw = ancho / dh = alto
         ctx.drawImage(kirby1, this.frameX * this.spriteWidth,0, this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height);
         
     }
@@ -383,13 +412,14 @@ class Enemy {
         }
     }
     draw(){
-        // ctx.fillStyle = "#31daFB";
-        // ctx.fillRect(this.x, this.y, this.width, this.height); // <-----  OJO Revisar por que no me esta tomando 
+        ctx.fillStyle = "#31daFB";
+        ctx.fillRect(this.x, this.y, this.width, this.height); // <-----  OJO Revisar por que no me esta tomando 
         ctx.fillStyle = 'red';
         ctx.font = '30px Orbitron';
         ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
         //context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
-        //
+        // img = imagen / sx = 	Frame index por spriteWidth(para emepzar X=spriteWidth) / sy= frameIndex 0 y no se multiplica por spriteHeight ya que esta en una sola fila
+        //sw=spriteWidth / sy=spriteHeight / dx = destino en X/ dy=destino en Y / dw = ancho / dh = alto
         ctx.drawImage(this.enemyType, this.frameX * this.spriteWidth,0,this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height)
         
     }
@@ -450,7 +480,7 @@ class Boss extends Enemy {
         this.x -= this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
     }
     draw(){
-		if (frame % 10 === 0) {
+		if (frame % 100 === 0) {
 			this.animation++;
 			if (this.animation === 3) this.animation = 1; //<--- Mantener un numero entre 1 a 5 (cambiando de imagen)
 		}
@@ -591,9 +621,12 @@ function handleGameStatus(){
     ctx.fillText('Score: ' + score, 20, 40);
     ctx.fillText('Resources: ' + numberOfResources, 20, 80);
      if (gameOver) {
-    ctx.fillStyle = 'black';
-    ctx.font = '60px Orbitron';
-    ctx.fillText('GAME OVER:', 215, 330);
+        board.drawGameOver();
+        board.updateGameOver();
+        clearInterval(intervalId);
+    // ctx.fillStyle = '#717171';
+    // ctx.font = '60px Orbitron';
+    // ctx.fillText('GAME OVER:', 215, 330);
      }
      if (score > winningScore && enemies.length === 0) {
         ctx.fillStyle = 'black';
@@ -608,6 +641,12 @@ function startGame() {
 	if (intervalId) return;
 	intervalId = setInterval(() => {
 		start();
+	}, 5000);
+}
+function startGameOver() {
+	if (intervalIdEnd) return;
+	intervalIdEnd = setInterval(() => {
+		end();
 	}, 5000);
 }
 
@@ -632,6 +671,18 @@ function start() {
     }  
 }
 startGame();
+
+function end(){
+    ctx.clearRect(0,0, $canvas.width, $canvas.height);
+    
+    board.drawGameOver();
+    board.updateGameOver();
+    frameOver ++;
+    if (gameOver) {
+        requestAnimationFrame(end); // <--- si no ha perdido sigue ejecutando start
+    }  
+}
+startGameOver();
 
 // Esta funcion se activa en la class Cell cuando pasa una condicion
 function colision(defensor, enemigo) {
