@@ -389,7 +389,7 @@ class Enemy {
         this.y = verticalPosition; // <----- una variable global para que el defensor tambien pueda acceder a ella
         this.width = cellSize - cellGap * 2;
         this.height = cellSize - cellGap * 2;
-        this.speed = Math.random() * 0.2 + 0.1; // <-- Max de velocidad 4.2 px
+        this.speed = 0.01; // <-- Max de velocidad 4.2 px
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 100;
         this.maxHealth = this.health; // <--- nos ayuda a darnos mas puntos dependiendo del enemigo que eliminemos.
@@ -445,7 +445,7 @@ function handleEnemies(){
             i--;  // <---- regresa el arreglo o lo ajusta para no saltar el siguiente objeto iterado
         }
     }
-    if (frame % enemiesInterval === 0 && score < winningScore) {  // <---- cada que el frame sea divisible por *enmiesInterval (600)*, un enemigo saldra
+    if (frame % enemiesInterval === 0 || score < winningScore) {  // <---- cada que el frame sea divisible por *enmiesInterval (600)*, un enemigo saldra
         let verticalPosition = Math.floor(Math.random() * 5 + 1) * cellSize + cellGap; // <---- verticalPosition sera un num random entre 100/200/300/400/500 coordenadas horizontales la celda
         enemies.push(new Enemy(verticalPosition));
         enemyPosition.push(verticalPosition)   // <--- Array se va llenando por cada posicion nueva del enemigo que este ACTIVO
@@ -460,7 +460,7 @@ class Boss extends Enemy {
         super(verticalPosition);
         this.width = cellSize + 100;
         this.height = cellSize + 100;
-        this.speed = Math.random() * 0.2 + 0.1;
+        this.speed = 0.01;
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 300;
         this.maxHealth = this.health;
@@ -477,7 +477,7 @@ class Boss extends Enemy {
 		this.animation = 0;
 	}
     update(){
-        this.x -= this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
+        this.x = this.x - this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
     }
     draw(){
 		if (frame % 100 === 0) {
@@ -595,7 +595,7 @@ class Resources {
 }
 
 function handleResources() {
-    if (frame % 500 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
+    if (frame % 10000 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
         resources.push(new Resources());
     } 
     for (let i = 0; i < resources.length; i++) {
@@ -641,14 +641,14 @@ function startGame() {
 	if (intervalId) return;
 	intervalId = setInterval(() => {
 		start();
-	}, 5000);
+	}, 1000/60);
 }
-function startGameOver() {
-	if (intervalIdEnd) return;
-	intervalIdEnd = setInterval(() => {
-		end();
-	}, 5000);
-}
+// function startGameOver() {
+// 	if (intervalIdEnd) return;
+// 	intervalIdEnd = setInterval(() => {
+// 		end();
+// 	}, 5000);
+// }
 
 
 function start() {
