@@ -704,7 +704,7 @@ function handleBoss(){
 // RECURSOS
 // --------GANAR RECURSOS---------
 const coin = new Image();
-coin.src = "./Images/killer/coin.png"
+coin.src = "./Images/killer/coin3.png"
 const amounts = [20, 30, 40];
 
 class Resources {
@@ -716,23 +716,26 @@ class Resources {
      this.width = cellSize * 0.6;
      this.height  = cellSize * 0.6;
      this.amount = amounts[Math.floor(Math.random()* amounts.length)]; // <-- random de recursos generados
+     this.imgCoin = new Image();
+     this.imgCoin.src = "./Images/killer/IronCoin.PNG"
      this.frameX = 0;  //<--- num de frames en la fila
      this.frameY = 0; //<--- si hay varias filas seria el numero de filas 
      this.minFrame = 0; //
      this.maxFrame = 5;
-     this.spriteWidth = 30; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
-     this.spriteHeight = 30;
+     this.spriteWidth = 99; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
+     this.spriteHeight = 99;
     }
     draw(){
+        ctx.drawImage(this.imgCoin, 260, 40,60, 60)
         // ctx.fillStyle = 'yellow';
         // ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = 'white';
         ctx.font = '20px Orbitron';
         ctx.fillText(this.amount, this.x + 15, this.y);
-        ctx.drawImage(coin, this.frameX * this.spriteWidth + 5.8,0, this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height);
+        ctx.drawImage(coin, this.frameX * this.spriteWidth + 10,0, this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height);
     }
     update(){
-        if (frame % 10 === 0) {
+        if (frame % 20 === 0) {
              if (this.frameX < this.maxFrame) {
                  this.frameX ++;
              } else {
@@ -743,7 +746,7 @@ class Resources {
 }
 
 function handleResources() {
-    if (frame % 10000 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
+    if (frame % 500 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
         resources.push(new Resources());
     } 
     for (let i = 0; i < resources.length; i++) {
@@ -767,7 +770,7 @@ function handleGameStatus(){
     ctx.font = '30px Orbitron';
     // Variable numberOfResources 👇  que se modifica en *addEventListener del defensor
     ctx.fillText('Score: ' + score, 20, 40);
-    ctx.fillText('Resources: ' + numberOfResources, 20, 80);
+    ctx.fillText('IronCoin: ' + numberOfResources, 20, 80);
      if (gameOver) {
         board.drawGameOver();
         board.updateGameOver();
