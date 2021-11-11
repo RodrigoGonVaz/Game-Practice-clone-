@@ -163,23 +163,40 @@ const board = new Board();
 
 //Projectiles
 // ----------CLASSES----------------//
+
+const laser = new Image();
+laser.src = "./Images/killer/laser.png"
 class Projectile {
     constructor(x,y){
         this.x = x;
         this.y = y;
-        this.width = 10;
-        this.height = 10; 
+        this.width = 120;
+        this.height =120; 
         this.power = 20;
         this.speed = 5;
+        this.frameX = 0;
+        this.frameY = 0; 
+        this.minFrame = 0;
+        this.maxFrame = 9;
+        this.spriteWidth = 123;
+        this.spriteHeight = 119;
     }
     update(){       // <---- cuando se dibuje se movera en x hacia derecha
-        this.x += this.speed;
+        this.x = this.x + this.speed;
+        if (frame % 10 === 0) {
+            if (this.frameX < this.maxFrame) {
+                this.frameX ++;
+            } else {
+                this.frameX = this.minFrame = 0;
+            }    
+        }
     }
     draw(){
-        ctx.fillStyle = 'black';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.width, 0, Math.PI *2); // <--- Para hacer un circulo / el cero es su angulo
-        ctx.fill();  // <---- lo rellena de negro
+        // ctx.fillStyle = 'black';
+        // ctx.beginPath();
+        // ctx.arc(this.x, this.y, this.width, 0, Math.PI *2); // <--- Para hacer un circulo / el cero es su angulo
+        // ctx.fill();  // <---- lo rellena de negro
+        ctx.drawImage(laser, this.frameX * this.spriteWidth + 5.9,0,this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height)
     }
 }
 // para llamar a la funcion *handleProjectiles* la ponemos en la funcion de start
@@ -301,7 +318,7 @@ class DogeKiller {
         if (this.shooting) { // <-- si es true dispara
             this.timer ++; 
             if (this.timer % 100 === 0) {        // valor de 👇  70 y 50 para que salga de en medio del cuadro
-                projectiles.push(new Projectile(this.x + 70, this.y + 50)); // <-- cada 100 frames una istancia (projectil) se crea y se va al Array
+                projectiles.push(new Projectile(this.x + 30, this.y - 15)); // <-- cada 100 frames una istancia (projectil) se crea y se va al Array
             }  
     } else {
        this.timer = 0; 
