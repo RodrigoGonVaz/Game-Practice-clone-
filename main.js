@@ -17,13 +17,16 @@ const dogeKillers = [];
 let numberOfResources = 300;
 //Un Array que contiene todos los enemigos
 const enemies = [];
+const enemyMamado = [];
 const superBoss = [];
 // Un array que nos ayudara ver la posicion de cada enemigo para el Defensor (se llena en *handleEnemies*) nos da solo la Y
 const enemyPosition = [];
+const mamadoPosition = [];
 const bossPosition = []; 
-const bossPosition2 = [];
+const bossPosition2 = [];// <--- revisar como poder disparar al Boss desde la parte de arriba
 let enemiesInterval = 1000; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
-let bossInterval = 1200;
+let bossInterval = 12000;
+let mamadoInterval = 1200;
 let frame = 0; // <--- para crear a los enemigos periodicamente
 let frameOver = 0;
 let gameOver = false;
@@ -103,7 +106,7 @@ function createGrid() {
                 
     }
 }
-createGrid();
+
 // para llamar a la funcion *handleGameGrid* la ponemos en la funcion de start
 function handleGameGrid() {
     // iterando por el array y dibujando cada una de las Cells (o INSTANCIAS)
@@ -142,7 +145,7 @@ class Board {
 	}
     drawGameOver(){
         ctx.drawImage(this.image2, this.x, this.y, this.width, this.height);
-        ctx.drawImage(dogeCoin, this.frameX * this.spriteWidth + 22,0, this.spriteWidth , this.spriteHeight, this.x + 100, this.y + 200,118, 126);
+        ctx.drawImage(dogeCoin, this.frameX * this.spriteWidth + 20,0, this.spriteWidth , this.spriteHeight, this.x + 100, this.y + 200,118, 126);
     }
     updateGameOver(){ // itera sobre las imagenes
         if (frameOver % 5 === 0) {
@@ -193,12 +196,22 @@ function handleProjectiles() {
         }  
     }
     superBoss.forEach((boss) => {
-        if (boss && projectiles[i] && boss.isTouching(projectiles[i])) {
-            boss.health -= projectiles[i].power;
+        
+            if (boss && projectiles[i] && boss.isTouching(projectiles[i])) {
+                boss.health -= projectiles[i].power;
+                projectiles.splice(i,1); //<--- solo eliminar este projectil
+                i--;
+            }
+            
+        });
+        enemyMamado.forEach((mamado) =>{
+            if (mamado && projectiles[i] && mamado.isTouching(projectiles[i])) {
+            mamado.health -= projectiles[i].power;
             projectiles.splice(i,1); //<--- solo eliminar este projectil
-            i--;
-        }
-    })
+            i--;       
+            }   
+    });
+
    // Si un proyectil 👇  existe y si un proyectil 👇  es menor que el ancho del canvas menos 100: 
         if (projectiles[i] && projectiles[i].x > $canvas.width - cellSize) {  
             projectiles.splice(i,1);  // <----- se eleimina del arreglo cuando llega al ancho - 100 (solo se borra uno)
@@ -323,47 +336,76 @@ $canvas.addEventListener('click', function(){
         numberOfResources -= dogeKillerCost; // <----- al crear el defensor le resta recursos a mi variable
     }
 })
+//---------------------DIBUJAR y UPDATE ---------------------------//
 // para llamar a la funcion *handledogeKillers* la ponemos en la funcion de start
 function handledogeKillers() {
     // Loop que itera en el array global que se va a ir llenando en mi event click de Crear nuevo dogeKiller
-    for (let i = 0; i < dogeKillers.length; i++) {
-        dogeKillers[i].draw();
-        dogeKillers[i].update(); //<--- for each dogeKiller creado en el array, llama la funcion update(projectiles)
-
-        superBoss.forEach((boss) => {
-
-
-        
-        // <- array que se va a revisar si aun tiene la misma coordenada defensor y enemigo en Y (no es -1 DISPARA)
-        // si la posision del enemigo no encuentra la misma coordenada que el defensor en Y me da -1 (SE DETIENEN LAS BALAS)
-        if (enemyPosition.indexOf(dogeKillers[i].y) !== -1 || bossPosition2.indexOf(dogeKillers[i].y - cellGap) !== -1) {  
-            dogeKillers[i].shooting = true;
+    dogeKillers.forEach((killer) =>{
+    // for (let i = 0; i < dogeKillers.length; i++) {
+        // dogeKillers[i].draw();
+        // dogeKillers[i].update(); //<--- for each dogeKiller creado en el array, llama la funcion update(projectiles)
+        killer.draw();
+        killer.update();                         // esta 👇 position es el pecho del boss
+        if (enemyPosition.indexOf(killer.y) !== -1 || bossPosition2 == killer.y - 3|| mamadoPosition.indexOf(killer.y) !== -1) {  
+            killer.shooting = true;
         } else {
-            dogeKillers[i].shooting = false;
-        }
-        for (let u = 0; u < enemies.length; u++) {  //<---- loop en el array de los enemigos que se van creando (instancias)
-            if (dogeKillers[i] && colision(dogeKillers[i], enemies[u])) {  // <---- condicion de la funcion de colision / revisa a cada defensor y enemigo si se tocan
-                enemies[u].movement = 0;               // si se tocan enemigo iterado se deja de mover
-                dogeKillers[i].health -= 0.2;            // si se tocan quitale vida al defensor
-            }
-            if (dogeKillers[i] && dogeKillers[i].health <= 0) {  //<---- si el la vida de mi defensor es menor o igual a 0, quitalo de mi array
-                dogeKillers.splice(i, 1); //<--- aquel defensor que tiene menos se quita del array y solo se quita 1 objeto del array
-                i--;  // <--- para que no se salte el siguiente objeto del array en el loop, ponemos menos 1 en el index 
-                enemies[u].movement = enemies[u].speed;
-            }            
-        }
-           if (dogeKillers[i] && colision(dogeKillers[i], boss)) {
-                boss.movement = 0;               // si se tocan enemigo iterado se deja de mover
-                dogeKillers[i].health -= 0.2; 
-           }
-           if (dogeKillers[i] && dogeKillers[i].health <= 0) {  
-               dogeKillers.splice(i, 1); 
-               i--; 
-               boss.movement = boss.speed;
-           }    
-        });
-
-
+            killer.shooting = false;
+        } 
+        //---------------COLISION CON DOGE---------------------//
+        superBoss.forEach((boss) => {
+            enemyMamado.forEach((mamado) =>{
+                enemies.forEach((enemy) =>{
+                    
+                    
+                    
+                    
+                    // <- array que se va a revisar si aun tiene la misma coordenada defensor y enemigo en Y (no es -1 DISPARA)
+                    // si la posision del enemigo no encuentra la misma coordenada que el defensor en Y me da -1 (SE DETIENEN LAS BALAS)
+                    // for (let u = 0; u < enemies.length; u++) {  //<---- loop en el array de los enemigos que se van creando (instancias)
+                    //     if (dogeKillers[i] && colision(dogeKillers[i], enemies[u])) {  // <---- condicion de la funcion de colision / revisa a cada defensor y enemigo si se tocan
+                    //         enemies[u].movement = 0;               // si se tocan enemigo iterado se deja de mover
+                    //         dogeKillers[i].health -= 0.2;            // si se tocan quitale vida al defensor
+                    //     }
+                    //     if (dogeKillers[i] && dogeKillers[i].health <= 0) {  //<---- si el la vida de mi defensor es menor o igual a 0, quitalo de mi array
+                    //         dogeKillers.splice(i, 1); //<--- aquel defensor que tiene menos se quita del array y solo se quita 1 objeto del array
+                    //         i--;  // <--- para que no se salte el siguiente objeto del array en el loop, ponemos menos 1 en el index 
+                    //         enemies[u].movement = enemies[u].speed;
+                    //     }            
+                    // }
+                    //---------------COLISION CON BOSS---------------------//
+                    if (killer && colision(killer, boss)) {
+                        boss.movement = 0;               // si se tocan enemigo iterado se deja de mover
+                        killer.health -= 0.2; 
+                    }
+                    if (killer && killer.health <= 0) {  
+                        dogeKillers.splice(killer, 1); 
+                        killer--; 
+                        boss.movement = boss.speed;
+                    }    
+                    if (killer && colision(killer, mamado)) {
+                        mamado.movement = 0;               // si se tocan enemigo iterado se deja de mover
+                        killer.health -= 0.2; 
+                    }
+                    if (killer && killer.health <= 0) {  
+                        dogeKillers.splice(killer, 1); 
+                        killer--; 
+                        mamado.movement = mamado.speed;
+                    }   
+                    if (killer && colision(killer, enemy)) {
+                        enemy.movement = 0;               // si se tocan enemigo iterado se deja de mover
+                        killer.health -= 0.2; 
+                    }
+                    if (killer && killer.health <= 0) {  
+                        dogeKillers.splice(killer, 1); 
+                        killer--; 
+                        enemy.movement = enemy.speed;;
+                    } 
+                })
+            })
+        })
+    });
+        
+        
         // superBoss.forEach((boss) => {
         //    dogeKillers.forEach(dogeKiller => {
         //      if (dogeKiller.isTouching(boss)){
@@ -373,17 +415,13 @@ function handledogeKillers() {
         //    });
         // });
     }
-    
-}
 
 //ENEMIGO
 // ----------CLASSES----------------//
 const enemyTypes = [];
 const enemyDoge = new Image();
 enemyDoge.src = "./Images/1doge.png"
-const mamadoDoge = new Image();
-mamadoDoge.src = "./Images/2doge.png"
-enemyTypes.push(enemyDoge, mamadoDoge);
+enemyTypes.push(enemyDoge);
 
 class Enemy {
     constructor(verticalPosition){ // <---- parametro se crea en la funcion *handleEnemies*
@@ -395,7 +433,7 @@ class Enemy {
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
         this.health = 100;
         this.maxHealth = this.health; // <--- nos ayuda a darnos mas puntos dependiendo del enemigo que eliminemos.
-        this.enemyType = enemyTypes[0];
+        this.enemyType = enemyTypes[Math.floor(Math.random()*enemyTypes.length)];
         this.frameX = 0;
         this.frameY = 0; 
         this.minFrame = 0;
@@ -404,7 +442,7 @@ class Enemy {
         this.spriteHeight = 144;
     }
     update(){
-        this.x -= this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
+        this.x = this.x - this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
         if (frame % 10 === 0) {
             if (this.frameX < this.maxFrame) {
                 this.frameX ++;
@@ -414,8 +452,8 @@ class Enemy {
         }
     }
     draw(){
-        ctx.fillStyle = "#31daFB";
-        ctx.fillRect(this.x, this.y, this.width, this.height); // <-----  OJO Revisar por que no me esta tomando 
+        // ctx.fillStyle = "#31daFB";
+        // ctx.fillRect(this.x, this.y, this.width, this.height);  
         ctx.fillStyle = 'red';
         ctx.font = '30px Orbitron';
         ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
@@ -423,7 +461,6 @@ class Enemy {
         // img = imagen / sx = 	Frame index por spriteWidth(para emepzar X=spriteWidth) / sy= frameIndex 0 y no se multiplica por spriteHeight ya que esta en una sola fila
         //sw=spriteWidth / sy=spriteHeight / dx = destino en X/ dy=destino en Y / dw = ancho / dh = alto
         ctx.drawImage(this.enemyType, this.frameX * this.spriteWidth,0,this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height)
-        
     }
 }
 
@@ -455,6 +492,98 @@ function handleEnemies(){
             enemiesInterval -= 50; // <--- haremos que el intervalo disminuya en 50 (saldran mas y mas)  
         } 
     }
+}
+
+const mamadoDoge = new Image();
+mamadoDoge.src = "./Images/2doge.png"
+
+class EnemyMamado extends Enemy {
+    constructor(verticalPosition){ // <---- parametro se crea en la funcion *handleEnemies*
+        super(verticalPosition);
+        this.x = $canvas.width;  // <---- para que el enemigo salga por detras del ancho del canvas
+        this.y = verticalPosition; // <----- una variable global para que el defensor tambien pueda acceder a ella
+        this.width = cellSize - cellGap * 2;
+        this.height = cellSize - cellGap * 2;
+        this.speed = Math.random() * 0.2 + 0.1; // <-- Max de velocidad 4.2 px
+        this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
+        this.health = 100;
+        this.maxHealth = this.health; // <--- nos ayuda a darnos mas puntos dependiendo del enemigo que eliminemos.
+        this.enemyType = mamadoDoge;
+        this.frameX = 0;
+        this.frameY = 0; 
+        this.minFrame = 0;
+        this.maxFrame = 4;
+        this.spriteWidth = 345;
+        this.spriteHeight = 400;
+    }
+    update(){
+        this.x = this.x - this.movement; // <--- al empezar en el final del canvas en X, se le va ir restando para avanzar en X
+        if (frame % 10 === 0) {
+            if (this.frameX < this.maxFrame) {
+                this.frameX ++;
+            } else {
+                this.frameX = this.minFrame = 0;
+            }    
+        }
+    }
+    draw(){
+        // ctx.fillStyle = "#31daFB";
+        // ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = 'red';
+        ctx.font = '30px Orbitron';
+        ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        //context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
+        // img = imagen / sx = 	Frame index por spriteWidth(para emepzar X=spriteWidth) / sy= frameIndex 0 y no se multiplica por spriteHeight ya que esta en una sola fila
+        //sw=spriteWidth / sy=spriteHeight / dx = destino en X/ dy=destino en Y / dw = ancho / dh = alto
+        ctx.drawImage(this.enemyType, this.frameX * this.spriteWidth,0,this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height)
+    }
+    isTouching(dogekiller){
+        return (
+			this.x < dogekiller.x + dogekiller.width &&
+			this.x + this.width > dogekiller.x &&
+			this.y < dogekiller.y + dogekiller.height &&
+			this.y + this.height > dogekiller.y
+		);
+    }
+}
+
+// para llamar a la funcion *handleEnemies* la ponemos en la funcion de start
+function handleEnemieMamados(){
+	enemyMamado.forEach((mamado) => {
+		mamado.draw();
+        mamado.update();        
+	});    
+    enemyMamado.forEach((mamado) => {
+        if (mamado.x < - 45 ) {
+        gameOver = true            
+      }});
+
+      if (frame % mamadoInterval === 0 && score < winningScore) {  // <---- cada que el frame sea divisible por *mamadoInterval (1200), un mamado saldra
+        let verticalPosition = Math.floor(Math.random() * 4 + 1) * cellSize +cellGap; // <---- verticalPosition sera un num random entre 100/200/300/400/500 coordenadas horizontales la celda
+        enemyMamado.push(new EnemyMamado(verticalPosition));
+        mamadoPosition.push(verticalPosition);   // <--- Array se va llenando por cada posicion nueva del enemigo que este ACTIVO
+        mamadoPosition.push(verticalPosition + 100);
+    }
+
+    enemyMamado.forEach((mamado) => {
+        dogeKillers.forEach(dogeKiller => {
+          if (dogeKiller.isTouching(mamado)){
+             mamado.movement = 0;              
+             dogeKiller.health -= 0.2;   
+          }
+          if (mamado.health <= 0) {        // 👇 solo dara 10 de recursos al matar al enemigo
+             let gainedResources = mamado.maxHealth/10; // <---- en la clase mamado .maxHealth es 300 para guardarlo en esta variable
+             numberOfResources += gainedResources;
+             score += gainedResources;
+             // en el loop de los mamado si el enemigo muere, se activa la variable findThisIndex la cual sirve para
+             //encontrar al mamado que murio y quitarlo del mamadoPosition array
+             const findThisIndex = mamadoPosition.indexOf(mamado.y) 
+             mamadoPosition.splice(findThisIndex,1)
+             enemyMamado.splice(mamado,1) // <----- se eleimina del arreglo cuando la vida llega a 0 (solo se borra uno)
+             mamado--;  // <---- regresa el arreglo o lo ajusta para no saltar el siguiente objeto iterado
+         }
+        });
+     });
 }
 
 class Boss extends Enemy {
@@ -527,8 +656,8 @@ function handleBoss(){
             verticalPosition += 100;            
         }
         superBoss.push(new Boss(verticalPosition));
-        bossPosition.push(verticalPosition);   // <--- Array se va llenando por cada posicion nueva del enemigo que este ACTIVO
-        bossPosition2.push(verticalPosition + 100);
+        bossPosition.push(verticalPosition);   // <--- Array se va llenando por cada posicion nueva del enemigo que este ACTIVO (esta position es la cabeza del boss)
+        bossPosition2.push(verticalPosition + 100); //<--- (esta position es el pecho del boss)
     }
     superBoss.forEach((boss) => {
         dogeKillers.forEach(dogeKiller => {
@@ -645,12 +774,12 @@ function startGame() {
 		start();
 	}, 1000/60);
 }
-// function startGameOver() {
-// 	if (intervalIdEnd) return;
-// 	intervalIdEnd = setInterval(() => {
-// 		end();
-// 	}, 5000);
-// }
+function startGameOver() {
+	if (intervalIdEnd) return;
+	intervalIdEnd = setInterval(() => {
+		end();
+	}, 1000/60);
+}
 
 
 function start() {
@@ -660,16 +789,18 @@ function start() {
     board.draw();
     ctx.fillStyle = "#2a282a";
     ctx.fillRect(0, 0, controlsBar.width, controlsBar.height);
+    createGrid();
     handleGameGrid();
     handledogeKillers();
     handleResources();
     handleProjectiles();
     handleEnemies();
+    handleEnemieMamados();
     handleBoss();
     handleGameStatus();
     frame ++;
-    if (frame % 60 === 0) {
-        console.log(frame/60)
+    if (gameOver) {
+        startGameOver();
     }
 }
 startGame();
@@ -680,11 +811,9 @@ function end(){
     board.drawGameOver();
     board.updateGameOver();
     frameOver ++;
-    if (gameOver) {
-        requestAnimationFrame(end); // <--- si no ha perdido sigue ejecutando start
-    }  
+    
 }
-startGameOver();
+
 
 // Esta funcion se activa en la class Cell cuando pasa una condicion
 function colision(defensor, enemigo) {
