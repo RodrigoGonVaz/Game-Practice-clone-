@@ -25,14 +25,14 @@ const mamadoPosition = [];
 const bossPosition = []; 
 const bossPosition2 = [];// <--- revisar como poder disparar al Boss desde la parte de arriba
 let enemiesInterval = 1000; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
-let bossInterval = 12000;
+let bossInterval = 1200;
 let mamadoInterval = 1200;
 let frame = 0; // <--- para crear a los enemigos periodicamente
 let frameOver = 0;
 let gameOver = false;
 // Se mostrara en la funcion *-handleGameStatus*
 let score = 0;
-const winningScore = 1000;
+const winningScore = 500;
 //Para iterar sobre los proyectiles
 const projectiles = [];
 //Array de recursos para meterlos aqui, cuando se crean en start
@@ -67,6 +67,9 @@ $canvas.addEventListener('mouseleave', function(event){
     mouse.y = undefined;   // regresa a la posicion acual del mouse obj.
     mouse.x = undefined; 
 })
+
+console.log(mouse.x)
+console.log(canvasPosition)
 
 
 //CELDAS con mov del mouse
@@ -726,7 +729,7 @@ class Resources {
      this.spriteHeight = 99;
     }
     draw(){
-        ctx.drawImage(this.imgCoin, 260, 40,60, 60)
+        ctx.drawImage(this.imgCoin, 280, 40,60, 60)
         // ctx.fillStyle = 'yellow';
         // ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = 'white';
