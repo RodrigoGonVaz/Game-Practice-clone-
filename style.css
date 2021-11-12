@@ -53,13 +53,14 @@ h3, h4 {
     border: 5px  rgb(62, 122, 190);
     background-color: rgba(8, 78, 158, 0.63);
     width: 550px;
-    height: 1000px;
+    height: 1200px;
     padding-left: 19px;
+    border-radius: 25px;
     padding-right: 19px;
     display: flex;
     text-align: center;
     flex-direction: column;
-    font-size: 15px;
+    font-size: 20px;
     font-family:'Segoe UI', sans-serif;
 }
 
@@ -114,4 +115,5 @@ footer > p {
     font-family: 'Orbitron', sans-serif;
     /* Link para cambiar la fuente al CSS/HTML/JS - Orbitron */
     margin-top: 200px;
+    border-radius: 25px;
 }

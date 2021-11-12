@@ -146,14 +146,25 @@ class Board {
         this.overSound = new Audio()
         this.overSound.src = "/sounds/gameOver2.mp3"
         this.startSound = new Audio({loop: true, volume: 0.1})
-        this.startSound.src = "/sounds/Musicgame.mp3"
+        this.startSound.src = "/sounds/Musicgame.mp3";
+        this.winAudio = new Audio();
+        this.winAudio.src = "/sounds/youwin.mp3";        
 	}
 
 	draw() {
 		ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 	}
+    startAudi(){
+        this.startSound.volume = 0.1
+        this.startSound.play();
+    }
     drawWin(){
         ctx.drawImage(this.image3, this.x, this.y, this.width, this.height);
+    }
+    winSound(){
+        this.winAudio.volume = 0.5;
+        this.winAudio.loop = false;
+        this.winAudio.play();
     }
     drawGameOver(){
         ctx.drawImage(this.image2, this.x, this.y, this.width, this.height);
@@ -171,6 +182,7 @@ class Board {
 }
 
 const board = new Board();
+
 
 
 //Projectiles
@@ -192,7 +204,8 @@ class Projectile {
         this.maxFrame = 9;
         this.spriteWidth = 123;
         this.spriteHeight = 119;
-
+        this.bulletSound = new Audio()
+        this.bulletSound.src = "/sounds/bullet.wav"
     }
     update(){       // <---- cuando se dibuje se movera en x hacia derecha
         this.x = this.x + this.speed;
@@ -218,8 +231,11 @@ function handleProjectiles() {
     for (let i = 0; i < projectiles.length; i++) {
         projectiles[i].update();
         projectiles[i].draw();
+        // projectiles[i].bulletSound.play();
+        // projectiles[i].bulletSound.play().volume = 0.5;
     for (let u = 0; u < enemies.length; u++) {
         if (enemies[u] && projectiles[i] && colision(projectiles[i], enemies[u])) {
+            projectiles[i].bulletSound.pause();
             enemies[u].health -= projectiles[i].power;
             projectiles.splice(i,1); //<--- solo eliminar este projectil
             i--;
@@ -769,7 +785,7 @@ class Resources {
 }
 
 function handleResources() {
-    if (frame % 150 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
+    if (frame % 100 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
         resources.push(new Resources());
     } 
     for (let i = 0; i < resources.length; i++) {
@@ -784,6 +800,9 @@ function handleResources() {
         
     }
 }
+
+
+
 
 // const win = new Image();
 // win.src = "/Images/KirbyWin.GIF"
@@ -806,6 +825,8 @@ function handleGameStatus(){
     // ctx.fillText('GAME OVER:', 215, 330);
      }
      if (score > winningScore && enemies.length === 0) {
+        board.startSound.pause();
+        board.winSound(); //-----------------------------------------------------------Aqui
         board.drawWin();
         ctx.fillStyle = 'black';
         ctx.font = '60px Orbitron';
@@ -813,8 +834,10 @@ function handleGameStatus(){
         ctx.font = '30px Orbitron';
         ctx.fillText('You Win, score: ' + score + 'points', 134, 340);
         setTimeout(function(){
-            location.reload();
-        },1000)
+            window.location.reload();
+            winAudio.pause();
+            board.startSound.pause();
+        },1500)
      }
 }
 
@@ -845,7 +868,7 @@ function start() {
     ctx.fillRect(0, 0, controlsBar.width, controlsBar.height);
     createGrid();
     handleGameGrid();
-    board.startSound.play();
+    board.startAudi();
     handledogeKillers();
     handleResources();
     handleProjectiles();
