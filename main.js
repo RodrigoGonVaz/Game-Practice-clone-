@@ -143,6 +143,10 @@ class Board {
         this.maxFrame = 23;
         this.spriteWidth = 121; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
         this.spriteHeight = 126;
+        this.overSound = new Audio()
+        this.overSound.src = "/sounds/gameOver2.mp3"
+        this.startSound = new Audio({loop: true, volume: 0.1})
+        this.startSound.src = "/sounds/Musicgame.mp3"
 	}
 
 	draw() {
@@ -188,6 +192,7 @@ class Projectile {
         this.maxFrame = 9;
         this.spriteWidth = 123;
         this.spriteHeight = 119;
+
     }
     update(){       // <---- cuando se dibuje se movera en x hacia derecha
         this.x = this.x + this.speed;
@@ -283,6 +288,10 @@ class DogeKiller {
         this.maxFrame = 11;
         this.spriteWidth = 248; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
         this.spriteHeight = 238;
+        this.kirbySound = new Audio()
+        this.kirbySound.src = "/sounds/kirbybuy.wav"
+        this.kirbySound.loop = false;
+
     }
     draw() {
         // if (frame % 100 === 0) {
@@ -369,8 +378,12 @@ function handledogeKillers() {
     // for (let i = 0; i < dogeKillers.length; i++) {
         // dogeKillers[i].draw();
         // dogeKillers[i].update(); //<--- for each dogeKiller creado en el array, llama la funcion update(projectiles)
+        // killer.kirbySound.play();
         killer.draw();
         killer.update();                         // esta 👇 position es el pecho del boss
+        // if(killer.kirbySound.play()){
+        //     killer.kirbySound.pause(); 
+        // }
         if (enemyPosition.indexOf(killer.y) !== -1 || bossPosition2 == killer.y - 3|| mamadoPosition.indexOf(killer.y) !== -1) {  
             killer.shooting = true;
         } else {
@@ -732,6 +745,8 @@ class Resources {
      this.maxFrame = 5;
      this.spriteWidth = 99; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
      this.spriteHeight = 99;
+     this.coinSound = new Audio()
+     this.coinSound.src = "/sounds/coin2.mp3"
     }
     draw(){
         ctx.drawImage(this.imgCoin, 280, 40,60, 60)
@@ -761,6 +776,7 @@ function handleResources() {
         resources[i].draw();
         resources[i].update();
         if (resources[i] && mouse.x && mouse.y && colision(resources[i], mouse)) { //<----- si mi mouse pasa por encima del recurso, entonces se llena mi array resources[i].amount
+            resources[i].coinSound.play();
             numberOfResources += resources[i].amount;
             resources.splice(i,1);
             i --;
@@ -780,6 +796,8 @@ function handleGameStatus(){
     ctx.fillText('Score: ' + score, 20, 40);
     ctx.fillText('IronCoin: ' + numberOfResources, 20, 80);
      if (gameOver) {
+        board.startSound.pause();
+        board.overSound.play();
         board.drawGameOver();
         board.updateGameOver();
         clearInterval(intervalId);
@@ -812,7 +830,7 @@ function startGameOver() {
 		end();
         setTimeout(function(){
             location.reload();
-        },1000)
+        },8000)
 
 	}, 1000/60);
 }
@@ -827,6 +845,7 @@ function start() {
     ctx.fillRect(0, 0, controlsBar.width, controlsBar.height);
     createGrid();
     handleGameGrid();
+    board.startSound.play();
     handledogeKillers();
     handleResources();
     handleProjectiles();
