@@ -26,7 +26,7 @@ const bossPosition = [];
 const bossPosition2 = [];// <--- revisar como poder disparar al Boss desde la parte de arriba
 let enemiesInterval = 1000; // <--- nos va a servir para disminuir los frames (o enemigos que salen por frames) *handleEnemies*
 let bossInterval = 1200;
-let mamadoInterval = 1200;
+let mamadoInterval = 5000;
 let frame = 0; // <--- para crear a los enemigos periodicamente
 let frameOver = 0;
 let gameOver = false;
@@ -135,6 +135,8 @@ class Board {
 		this.image.src = "./Images/moon.png";
         this.image2 = new Image();
 		this.image2.src = "./Images/GameOver.PNG";
+        this.image3 = new Image();
+        this.image3.src = "/Images/KirbyWin.GIF"
         this.frameX = 0;  //<--- num de frames en la fila
         this.frameY = 0; //<--- si hay varias filas seria el numero de filas 
         this.minFrame = 0; //
@@ -146,6 +148,9 @@ class Board {
 	draw() {
 		ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 	}
+    drawWin(){
+        ctx.drawImage(this.image3, this.x, this.y, this.width, this.height);
+    }
     drawGameOver(){
         ctx.drawImage(this.image2, this.x, this.y, this.width, this.height);
         ctx.drawImage(dogeCoin, this.frameX * this.spriteWidth + 20,0, this.spriteWidth , this.spriteHeight, this.x + 100, this.y + 200,118, 126);
@@ -524,9 +529,9 @@ class EnemyMamado extends Enemy {
         this.y = verticalPosition; // <----- una variable global para que el defensor tambien pueda acceder a ella
         this.width = cellSize - cellGap * 2;
         this.height = cellSize - cellGap * 2;
-        this.speed = Math.random() * 0.2 + 0.1; // <-- Max de velocidad 4.2 px
+        this.speed = Math.random() * 0.2 + 0.2; // <-- Max de velocidad 4.2 px
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
-        this.health = 100;
+        this.health = 200;
         this.maxHealth = this.health; // <--- nos ayuda a darnos mas puntos dependiendo del enemigo que eliminemos.
         this.enemyType = mamadoDoge;
         this.frameX = 0;
@@ -549,13 +554,13 @@ class EnemyMamado extends Enemy {
     draw(){
         // ctx.fillStyle = "#31daFB";
         // ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle = 'red';
-        ctx.font = '30px Orbitron';
-        ctx.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
         //context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
         // img = imagen / sx = 	Frame index por spriteWidth(para emepzar X=spriteWidth) / sy= frameIndex 0 y no se multiplica por spriteHeight ya que esta en una sola fila
         //sw=spriteWidth / sy=spriteHeight / dx = destino en X/ dy=destino en Y / dw = ancho / dh = alto
         ctx.drawImage(this.enemyType, this.frameX * this.spriteWidth,0,this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height)
+        ctx.fillStyle = 'red';
+        ctx.font = '15px Orbitron';
+        ctx.fillText(Math.floor(this.health), this.x + 30, this.y + 55);
     }
     isTouching(dogekiller){
         return (
@@ -611,9 +616,9 @@ class Boss extends Enemy {
         super(verticalPosition);
         this.width = cellSize + 100;
         this.height = cellSize + 100;
-        this.speed = Math.random() * 0.2 + 0.1;
+        this.speed = Math.random() * 0.2 + 0.3;
         this.movement = this.speed; // <---- se hizo esta variable para cuando el enemigo llegue al defensor, esto dara 0
-        this.health = 300;
+        this.health = 500;
         this.maxHealth = this.health;
         this.img1 = new Image();
 		this.img2 = new Image();
@@ -644,7 +649,7 @@ class Boss extends Enemy {
 
         ctx.fillStyle = 'red';
         ctx.font = '20px Orbitron';
-        ctx.fillText(Math.floor(this.health), this.x + 80, this.y + 100);
+        ctx.fillText(Math.floor(this.health), this.x + 72, this.y + 120);
         
     }
     isTouching(dogekiller){
@@ -749,7 +754,7 @@ class Resources {
 }
 
 function handleResources() {
-    if (frame % 500 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
+    if (frame % 150 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
         resources.push(new Resources());
     } 
     for (let i = 0; i < resources.length; i++) {
@@ -764,8 +769,8 @@ function handleResources() {
     }
 }
 
-
-
+// const win = new Image();
+// win.src = "/Images/KirbyWin.GIF"
 //Utilities 
 // para llamar a la funcion *handleGameStatus* la ponemos en la funcion de start
 function handleGameStatus(){
@@ -783,6 +788,7 @@ function handleGameStatus(){
     // ctx.fillText('GAME OVER:', 215, 330);
      }
      if (score > winningScore && enemies.length === 0) {
+        board.drawWin();
         ctx.fillStyle = 'black';
         ctx.font = '60px Orbitron';
         ctx.fillText('LEVEL COMPLETE', 130, 300);
@@ -790,7 +796,7 @@ function handleGameStatus(){
         ctx.fillText('You Win, score: ' + score + 'points', 134, 340);
         setTimeout(function(){
             location.reload();
-        },2000)
+        },1000)
      }
 }
 
@@ -806,7 +812,7 @@ function startGameOver() {
 		end();
         setTimeout(function(){
             location.reload();
-        },2000)
+        },1000)
 
 	}, 1000/60);
 }
