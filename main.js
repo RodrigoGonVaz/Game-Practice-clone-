@@ -45,8 +45,8 @@ const resources = [];
 const mouse = {
     x: 10,
     y: 10,
-    width: 0,
-    height: 0,
+    width: 0.4,
+    height: 0.4,
 
 }
 // getBoundingClientRect -> esta funcion regresa un objecto del DOM (rectangulo) que contiene info
@@ -788,6 +788,9 @@ function handleGameStatus(){
         ctx.fillText('LEVEL COMPLETE', 130, 300);
         ctx.font = '30px Orbitron';
         ctx.fillText('You Win, score: ' + score + 'points', 134, 340);
+        setTimeout(function(){
+            location.reload();
+        },2000)
      }
 }
 
