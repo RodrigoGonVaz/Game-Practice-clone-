@@ -1,15 +1,117 @@
-body {
-    background-color: black;
+/* body {
+    background-image: url("./Images/doge-dog-texture-sobaka.jpeg");
+    background-size: cover;
+} */
+
+/* #comojugar {
+    color: white;
+    border: 5px  rgb(62, 122, 190);
+    background-image: url("/Images/starry-doge-nightsky.jpeg");
+    padding: 8px;
+    display: flex;
+    text-align: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+} */
+
+html {
+    background-image: url("./Images/doge-dog-texture-sobaka.jpeg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin: 0px;
 }
 
-#canvas {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform:translate(-50%, -50%);
+h1,h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    font-size: 80px;
+    margin: 10px;
+    text-align: center;
+    color: #085174;
+    text-shadow: #4a4d57 8px -20px 9px;
+}
+
+h3, h4 {
+    color: #ffffff;
+    font-size: 35px;
+    font-family:'Segoe UI', sans-serif;
+}
+
+
+#container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    align-content: center;
+    margin-top: 20px;
+    
+}
+
+#comojugar {
+    margin-top: 50px;
+    color: white;
+    border: 5px  rgb(62, 122, 190);
+    background-color: rgba(8, 78, 158, 0.63);
+    width: 550px;
+    height: 1000px;
+    padding-left: 19px;
+    padding-right: 19px;
+    display: flex;
+    text-align: center;
+    flex-direction: column;
+    font-size: 15px;
+    font-family:'Segoe UI', sans-serif;
+}
+
+.cube{
+    width: 150px;
+    height: 150px;
+    
+}
+
+p, ul {
+    font-family:'Segoe UI', sans-serif;
+    color: white;
+    font-size: 20px;
+    text-align: left;
+    padding-right: 55px;
+    padding-left: 10px;
+}
+
+
+#startGame{
+    display: inline-block;
+    padding: 15px 25px;
+    font-size: 24px;
+    cursor: pointer;
+    text-align: center;	
+    font-weight: bold;
+    outline: none;
+    color: #fff;
+    background-color: rgba(34, 106, 201, 0.952);
+    border: none;
+    border-radius: 55px;
+    box-shadow: 0 9px #999;
+    width: 200px;
+    justify-content: center;
+    align-self: center;
+
+}
+
+  
+
+footer > p {
+    font-family: 'Orbitron', sans-serif;
+    color: #000000;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#game-board {
+    background-image: url("./Images/canvasImage.png"); 
     width: 900px;
     height: 600px;
-    background: white;
     font-family: 'Orbitron', sans-serif;
     /* Link para cambiar la fuente al CSS/HTML/JS - Orbitron */
+    margin-top: 200px;
 }

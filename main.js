@@ -32,7 +32,7 @@ let frameOver = 0;
 let gameOver = false;
 // Se mostrara en la funcion *-handleGameStatus*
 let score = 0;
-const winningScore = 500;
+const winningScore = 100;
 //Para iterar sobre los proyectiles
 const projectiles = [];
 //Array de recursos para meterlos aqui, cuando se crean en start
@@ -91,7 +91,7 @@ class Cell {
         //si mouse.x tiene cordenadas (verdadero) y mouse.y tiene coordenas (verdadero) y...
         // si (defensor = this.cell (esta instancia) y la posicion del mouse) - regresa o pinta esta misma cell(instancia)
         if (mouse.x && mouse.y && colision(this, mouse)) {
-            ctx.strokeStyle = 'black';
+            ctx.strokeStyle = 'yellow';
             ctx.strokeRect(this.x, this.y, this.width, this.height);  
         }
     }
@@ -801,6 +801,10 @@ function startGameOver() {
 	if (intervalIdEnd) return;
 	intervalIdEnd = setInterval(() => {
 		end();
+        setTimeout(function(){
+            location.reload();
+        },2000)
+
 	}, 1000/60);
 }
 
@@ -826,7 +830,7 @@ function start() {
         startGameOver();
     }
 }
-startGame();
+
 
 function end(){
     ctx.clearRect(0,0, $canvas.width, $canvas.height);
@@ -871,7 +875,7 @@ function colision(defensor, enemigo) {
 //        } 
 // };
 
-// $button.onclick = startGame
+$button.onclick = startGame
 
 
 window.addEventListener('resize', function() { // <---- cuando el browser cambia de tamaño el mouse Position se mueve pero la funcion lo recalcula 
